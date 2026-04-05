@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>403 Forbidden</title>
+<style>
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f6f7fb;
+    color:#333;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background:white;
+    padding:40px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    width:520px;
+    text-align:center;
+}
+
+.icon{
+    font-size:50px;
+    color:#e74c3c;
+    margin-bottom:15px;
+}
+
+h1{
+    margin:10px 0;
+    font-size:26px;
+}
+
+.desc{
+    color:#666;
+    margin:15px 0 25px 0;
+}
+
+.info{
+    background:#f2f3f7;
+    border-radius:6px;
+    padding:12px;
+    font-size:14px;
+    text-align:left;
+}
+
+.info div{
+    margin:6px 0;
+}
+
+.footer{
+    margin-top:20px;
+    font-size:13px;
+    color:#888;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<div class="icon">🚫</div>
+
+<h1>403 - Access Forbidden</h1>
+
+<div class="desc">
+Your IP address has been blocked by the Web Application Firewall.
+</div>
+
+<div class="info">
+<div><b>Reason:</b> IP banned</div>
+<div><b>Time:</b> <span id="time"></span></div>
+</div>
+
+<div class="footer">
+If you believe this is an error, please contact the website administrator.
+</div>
+
+</div>
+
+<script>
+document.getElementById("time").textContent =
+new Date().toISOString().replace("T"," ").substring(0,19);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "overview": {
+    "block_today": [],
+
+    "visitors": {
+      "total": 0,
+      "unique": []
+    },
+
+    "engagement": {
+      "total": 0,
+      "bounce_rate": 0,
+      "avg_session_duration": 0
+    },
+
+    "sources": {
+      "direct": 0,
+      "search": 0,
+      "social": 0,
+      "referral": 0
+    },
+
+    "security": {
+      "blocked_requests": 0,
+      "block_rate": 0,
+
+      "attack_types": {},
+
+      "top_attack_ips": {},
+
+      "top_target_urls": {},
+
+      "geo": {
+        "visitors_by_country": {},
+
+        "attackers_by_country": {}
+      }
+    },
+
+    "trending_urls": {},
+
+    "clients": {
+      "user_agents": {},
+
+      "browsers": {},
+
+      "devices": {},
+
+      "os": {}
+    }
+  },
+  "logs": []
+}

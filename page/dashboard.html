@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biubo WAF · 控制台</title>
+  <script src="https://unpkg.com/globe.gl@2.30.0/dist/globe.gl.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #020b18;
+      --sidebar: #030e22;
+      --panel: rgba(2, 15, 35, 0.9);
+      --border: rgba(0, 200, 255, 0.14);
+      --accent: #00c8ff;
+      --accent2: #0062ff;
+      --red: #ff3a3a;
+      --green: #00ff8c;
+      --yellow: #ffd700;
+      --text: #c8e8ff;
+      --dim: rgba(200, 232, 255, 0.45);
+      --glow: 0 0 18px rgba(0, 200, 255, 0.3);
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Rajdhani', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      color-scheme: dark;
+      font-size: 16px
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px)
+    }
+  </style>
+  <style>
+    /* ── Layout ── */
+    #app {
+      display: flex;
+      height: 100vh;
+      position: relative;
+      z-index: 1
+    }
+
+    #sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow-y: auto
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    #topbar {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      background: rgba(2, 11, 24, 0.95)
+    }
+
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 200, 255, 0.2) transparent
+    }
+
+    /* ── Sidebar ── */
+    .sb-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .sb-logo-icon {
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow);
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    .sb-logo h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase
+    }
+
+    .sb-section {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(200, 232, 255, 0.3);
+      padding: 16px 16px 6px;
+      font-weight: 700
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dim);
+      transition: all .15s;
+      border-left: 2px solid transparent
+    }
+
+    .sb-item:hover {
+      color: var(--text);
+      background: rgba(0, 200, 255, 0.05)
+    }
+
+    .sb-item.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(0, 200, 255, 0.08)
+    }
+
+    .sb-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
+
+    /* ── Topbar ── */
+    .tb-left {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .tb-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      color: var(--dim)
+    }
+
+    .tb-host select {
+      background: rgba(0, 100, 180, 0.15);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      color-scheme: dark
+    }
+
+    .tb-host select option {
+      background: var(--sidebar);
+      color: var(--text)
+    }
+
+    select option {
+      background: var(--sidebar);
+      color: var(--text)
+    }
+
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .tb-btn {
+      background: rgba(0, 200, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 12px;
+      color: var(--dim);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      letter-spacing: 1px
+    }
+
+    .tb-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent)
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--green)
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: blink 1.2s ease-in-out infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .2
+      }
+    }
+
+    /* ── Tab panels ── */
+    .tab-panel {
+      display: none
+    }
+
+    .tab-panel.active {
+      display: block
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px)
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: .5
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .card-title::before {
+      content: '';
+      width: 3px;
+      height: 10px;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      flex-shrink: 0
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px
+    }
+
+    /* ── Stat cards ── */
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px
+    }
+
+    .stat-card.blue::after {
+      background: var(--accent)
+    }
+
+    .stat-card.red::after {
+      background: var(--red)
+    }
+
+    .stat-card.green::after {
+      background: var(--green)
+    }
+
+    .stat-card.yellow::after {
+      background: var(--yellow)
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 8px
+    }
+
+    .stat-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1
+    }
+
+    .stat-val.blue {
+      color: var(--accent)
+    }
+
+    .stat-val.red {
+      color: var(--red)
+    }
+
+    .stat-val.green {
+      color: var(--green)
+    }
+
+    .stat-val.yellow {
+      color: var(--yellow)
+    }
+
+    /* ── Table ── */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px
+    }
+
+    .tbl th {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-weight: 700
+    }
+
+    .tbl td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+      vertical-align: middle
+    }
+
+    .tbl tr:hover td {
+      background: rgba(0, 200, 255, 0.04);
+      cursor: pointer
+    }
+
+    .tbl tr.blocked td {
+      color: rgba(255, 58, 58, 0.85)
+    }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: 'Share Tech Mono', monospace
+    }
+
+    .badge-red {
+      background: rgba(255, 58, 58, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(255, 58, 58, 0.3)
+    }
+
+    .badge-green {
+      background: rgba(0, 255, 140, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(0, 255, 140, 0.25)
+    }
+
+    .badge-blue {
+      background: rgba(0, 200, 255, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0, 200, 255, 0.25)
+    }
+
+    .badge-yellow {
+      background: rgba(255, 215, 0, 0.1);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 215, 0, 0.25)
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px
+    }
+
+    .pg-btn {
+      background: rgba(0, 100, 180, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 14px;
+      color: var(--dim);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600
+    }
+
+    .pg-btn:hover:not(:disabled) {
+      color: var(--accent);
+      border-color: var(--accent)
+    }
+
+    .pg-btn:disabled {
+      opacity: .35;
+      cursor: not-allowed
+    }
+
+    .pg-info {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--dim)
+    }
+
+    /* ── IP list ── */
+    .ip-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+      font-size: 14px
+    }
+
+    .ip-row:hover {
+      background: rgba(0, 200, 255, 0.04)
+    }
+
+    .ip-addr {
+      font-family: 'Share Tech Mono', monospace;
+      flex: 1;
+      color: var(--text)
+    }
+
+    .ip-meta {
+      color: var(--dim);
+      font-size: 13px;
+      flex: 2
+    }
+
+    .ip-del {
+      background: rgba(255, 58, 58, 0.1);
+      border: 1px solid rgba(255, 58, 58, 0.3);
+      border-radius: 3px;
+      padding: 4px 12px;
+      color: var(--red);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      transition: all .15s
+    }
+
+    .ip-del:hover {
+      background: rgba(255, 58, 58, 0.2)
+    }
+
+    /* ── Add IP form ── */
+    .add-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap
+    }
+
+    .add-form input {
+      background: rgba(0, 100, 180, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      min-width: 160px;
+      transition: border-color .2s
+    }
+
+    .add-form input:focus {
+      border-color: var(--accent)
+    }
+
+    .add-form button {
+      background: rgba(0, 200, 255, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      padding: 8px 16px;
+      color: var(--accent);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .add-form button:hover {
+      background: rgba(0, 200, 255, 0.2)
+    }
+
+    /* ── Globe tab ── */
+    #globe-wrap {
+      position: relative;
+      height: calc(100vh - 52px);
+      margin: -24px;
+      overflow: hidden
+    }
+
+    #globe-container {
+      position: absolute;
+      inset: 0
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px)
+    }
+
+    .modal-overlay.open {
+      display: flex
+    }
+
+    .modal {
+      background: rgba(2, 15, 35, 0.98);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 32px;
+      width: 700px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent)
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px
+    }
+
+    .modal-close:hover {
+      color: var(--text)
+    }
+
+    /* ── System gauges ── */
+    .gauge-wrap {
+      text-align: center
+    }
+
+    .gauge-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 8px
+    }
+
+    .gauge-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 26px;
+      color: var(--accent);
+      margin-top: 4px
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .8s ease
+    }
+
+    .progress-fill.blue {
+      background: linear-gradient(90deg, var(--accent2), var(--accent))
+    }
+
+    .progress-fill.red {
+      background: linear-gradient(90deg, #ff7700, var(--red))
+    }
+
+    .progress-fill.green {
+      background: linear-gradient(90deg, #00aa55, var(--green))
+    }
+
+    /* ── Globe panels ── */
+    #g-panel-left {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 20;
+      width: 230px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    #g-panel-right {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      z-index: 20;
+      width: 210px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    #g-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 20px;
+      backdrop-filter: blur(16px)
+    }
+
+    .g-card {
+      background: rgba(2, 15, 35, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden
+    }
+
+    .g-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: .6
+    }
+
+    .g-card-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .g-card-title::before {
+      content: '';
+      width: 3px;
+      height: 10px;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent)
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .stat-item {
+      background: rgba(0, 100, 180, 0.1);
+      border: 1px solid rgba(0, 200, 255, 0.12);
+      border-radius: 4px;
+      padding: 8px 10px
+    }
+
+    .stat-item .val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1
+    }
+
+    .stat-item .val.red {
+      color: var(--red)
+    }
+
+    .stat-item .val.green {
+      color: var(--green)
+    }
+
+    .stat-item .lbl {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--dim);
+      margin-top: 3px;
+      text-transform: uppercase
+    }
+
+    .type-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px
+    }
+
+    .type-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--dim);
+      width: 52px;
+      flex-shrink: 0;
+      text-transform: uppercase
+    }
+
+    .type-bar-bg {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .type-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .6s ease
+    }
+
+    .type-count {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--dim);
+      width: 24px;
+      text-align: right
+    }
+
+    #g-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 200px;
+      overflow: hidden
+    }
+
+    .feed-item {
+      background: rgba(0, 50, 100, 0.2);
+      border-left: 2px solid var(--red);
+      border-radius: 0 3px 3px 0;
+      padding: 6px 8px;
+      animation: slideIn .35s ease;
+      flex-shrink: 0
+    }
+
+    .feed-item.sev1 {
+      border-left-color: var(--yellow)
+    }
+
+    .feed-item.sev2 {
+      border-left-color: #ff7700
+    }
+
+    .feed-item.sev3 {
+      border-left-color: var(--red)
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-12px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1
+      }
+    }
+
+    .feed-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px
+    }
+
+    .feed-type {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--accent);
+      font-weight: 700
+    }
+
+    .feed-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      color: var(--dim)
+    }
+
+    .feed-route {
+      font-size: 10px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .country-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.06)
+    }
+
+    .country-rank {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--dim);
+      width: 14px
+    }
+
+    .country-name {
+      font-size: 11px;
+      color: var(--text);
+      flex: 1
+    }
+
+    .country-bar-bg {
+      width: 50px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      overflow: hidden
+    }
+
+    .country-bar-fill {
+      height: 100%;
+      background: var(--red);
+      border-radius: 2px;
+      transition: width .8s ease
+    }
+
+    .country-count {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--red);
+      width: 24px;
+      text-align: right
+    }
+
+    .ctrl-btn {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: transparent;
+      border: 1px solid rgba(0, 200, 255, 0.15);
+      border-radius: 20px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .ctrl-btn:hover,
+    .ctrl-btn.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(0, 200, 255, 0.08);
+      box-shadow: 0 0 12px rgba(0, 200, 255, 0.2)
+    }
+
+    .ctrl-btn.danger {
+      border-color: rgba(255, 58, 58, 0.3);
+      color: rgba(255, 58, 58, 0.6)
+    }
+
+    .ctrl-btn.danger:hover {
+      color: var(--red);
+      border-color: var(--red);
+      background: rgba(255, 58, 58, 0.08)
+    }
+
+    .ctrl-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border)
+    }
+
+    .speed-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--dim)
+    }
+
+    #g-speed {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 80px;
+      height: 3px;
+      background: rgba(0, 200, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer
+    }
+
+    #g-speed::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      cursor: pointer
+    }
+
+    /* ── Replay time controls ── */
+    .replay-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap
+    }
+
+    .replay-controls label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dim)
+    }
+
+    .replay-controls input {
+      background: rgba(0, 100, 180, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      outline: none
+    }
+
+    .replay-controls button {
+      background: rgba(0, 200, 255, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 5px 14px;
+      color: var(--accent);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .toast-item {
+      background: rgba(2, 15, 35, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 12px;
+      animation: toastIn .3s ease;
+      min-width: 200px
+    }
+
+    .toast-item.ok {
+      border-color: var(--green);
+      color: var(--green)
+    }
+
+    .toast-item.err {
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    @keyframes toastIn {
+      from {
+        transform: translateY(10px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1
+      }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 200, 255, 0.2);
+      border-radius: 3px
+    }
+
+    /* ── Detail rows ── */
+    .detail-row {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.06)
+    }
+
+    .detail-key {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dim);
+      min-width: 90px;
+      flex-shrink: 0
+    }
+
+    .detail-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      word-break: break-all
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-icon">⬡</div>
+        <h1>Biubo WAF</h1>
+      </div>
+      <div class="sb-section">监控</div>
+      <div class="sb-item active" onclick="showTab('globe')" id="nav-globe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        全球攻击地图
+      </div>
+      <div class="sb-item" onclick="showTab('dashboard')" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+        仪表盘
+      </div>
+      <div class="sb-section">管理</div>
+      <div class="sb-item" onclick="showTab('logs')" id="nav-logs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+        日志管理
+      </div>
+      <div class="sb-item" onclick="showTab('ipmanage')" id="nav-ipmanage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+        </svg>
+        黑白名单
+      </div>
+      <div class="sb-section">系统</div>
+      <div class="sb-item" onclick="showTab('system')" id="nav-system">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+        系统状态
+      </div>
+      <div style="flex:1"></div>
+      <div class="sb-item" onclick="logout()" style="margin-bottom:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        退出登录
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <div id="main">
+      <!-- Topbar -->
+      <div id="topbar">
+        <div class="tb-left">
+          <div class="live-dot">LIVE</div>
+          <div class="tb-time" id="tb-time">--:--:--</div>
+          <div class="tb-host">
+            <select id="host-sel" onchange="onHostChange()">
+              <option>加载中...</option>
+            </select>
+          </div>
+        </div>
+        <div class="tb-right">
+          <select id="lang-sel" onchange="changeLang(this.value)"
+            style="background:rgba(0,100,180,0.15);border:1px solid var(--border);border-radius:4px;padding:4px 10px;color:var(--text);font-size:13px;outline:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;color-scheme:dark">
+            <option value="zh">中文</option>
+            <option value="en">EN</option>
+          </select>
+          <button class="tb-btn" onclick="refreshCurrent()">↻ 刷新</button>
+          <button class="tb-btn" onclick="logout()">退出</button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div id="content">
+
+        <!-- ── GLOBE TAB ── -->
+        <div class="tab-panel active" id="tab-globe">
+          <div id="globe-wrap">
+            <div id="globe-container"></div>
+            <!-- Left panel -->
+            <div id="g-panel-left">
+              <div class="g-card">
+                <div class="g-card-title">威胁统计</div>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <div class="val red" id="g-total">0</div>
+                    <div class="lbl">总攻击</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="val" id="g-rate">0</div>
+                    <div class="lbl">每分钟</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="val green" id="g-blocked">0</div>
+                    <div class="lbl">已拦截</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="val" style="color:var(--yellow)" id="g-critical">0</div>
+                    <div class="lbl">严重</div>
+                  </div>
+                </div>
+              </div>
+              <div class="g-card">
+                <div class="g-card-title">攻击类型</div>
+                <div id="g-type-bars"></div>
+              </div>
+            </div>
+            <!-- Right panel -->
+            <div id="g-panel-right">
+              <div class="g-card">
+                <div class="g-card-title">攻击来源国</div>
+                <div id="g-country-list"></div>
+              </div>
+              <div class="g-card">
+                <div class="g-card-title">威胁等级</div>
+                <div
+                  style="background:rgba(255,58,58,0.12);border:1px solid rgba(255,58,58,0.25);border-radius:4px;padding:10px;text-align:center;margin-bottom:10px">
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--green);font-weight:700"
+                    id="g-threat-level">LOW</div>
+                  <div
+                    style="font-size:9px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px">
+                    当前等级</div>
+                </div>
+                <div style="height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden">
+                  <div id="g-threat-bar"
+                    style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--red));border-radius:3px;transition:width 1s ease">
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:4px">
+                  <span style="font-size:8px;color:var(--dim);letter-spacing:1px;text-transform:uppercase">LOW</span>
+                  <span
+                    style="font-size:8px;color:var(--dim);letter-spacing:1px;text-transform:uppercase">CRITICAL</span>
+                </div>
+              </div>
+              <!-- Globe time range -->
+              <div class="g-card">
+                <div class="g-card-title">显示时间范围</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <span
+                      style="font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;width:24px;flex-shrink:0">从</span>
+                    <input id="globe-date-from" type="date"
+                      style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:11px;outline:none">
+                  </div>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <span
+                      style="font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;width:24px;flex-shrink:0">至</span>
+                    <input id="globe-date-to" type="date"
+                      style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:11px;outline:none">
+                  </div>
+                  <button onclick="gReload()"
+                    style="background:rgba(0,200,255,0.1);border:1px solid var(--accent);border-radius:4px;padding:6px;color:var(--accent);font-size:11px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px">刷新地图</button>
+                </div>
+              </div>
+              <!-- IP Search -->
+              <div class="g-card">
+                <div class="g-card-title">IP 搜索回放</div>
+                <div style="display:flex;gap:6px;margin-bottom:8px">
+                  <input id="g-ip-input" placeholder="输入 IP 地址"
+                    style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none">
+                  <button onclick="globeSearchIP()"
+                    style="background:rgba(0,200,255,0.1);border:1px solid var(--accent);border-radius:4px;padding:6px 10px;color:var(--accent);font-size:11px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700">搜索</button>
+                </div>
+                <div style="display:flex;gap:6px;margin-bottom:8px">
+                  <input id="g-date-from" type="date"
+                    style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:11px;outline:none">
+                  <input id="g-date-to" type="date"
+                    style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:11px;outline:none">
+                </div>
+                <div id="g-ip-results" style="font-size:11px;color:var(--dim);max-height:120px;overflow-y:auto"></div>
+              </div>
+            </div>
+            <!-- Controls -->
+            <div id="g-controls">
+              <button class="ctrl-btn active" id="g-btn-rotate" onclick="gToggleRotate()">自动旋转</button>
+              <div class="ctrl-sep"></div>
+              <span class="speed-label">速度</span>
+              <input type="range" id="g-speed" min="1" max="10" value="4" oninput="gSetSpeed(this.value)">
+              <div class="ctrl-sep"></div>
+              <button class="ctrl-btn" id="g-btn-pause" onclick="gTogglePause()">暂停</button>
+              <div class="ctrl-sep"></div>
+              <button class="ctrl-btn danger" onclick="gClear()">清除</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── DASHBOARD TAB ── -->
+        <div class="tab-panel" id="tab-dashboard">
+          <!-- Row 1: 4 key stats -->
+          <div class="grid-4" style="margin-bottom:20px">
+            <div class="stat-card blue">
+              <div class="stat-label">总请求数</div>
+              <div class="stat-val blue" id="d-total">0</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-label">已拦截攻击</div>
+              <div class="stat-val red" id="d-blocked">0</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-label">独立访客</div>
+              <div class="stat-val green" id="d-unique">0</div>
+            </div>
+            <div class="stat-card yellow">
+              <div class="stat-label">拦截率</div>
+              <div class="stat-val yellow" id="d-rate">0%</div>
+            </div>
+          </div>
+          <!-- Row 2: engagement + sources -->
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-title">流量参与度</div>
+              <div id="d-engagement"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">流量来源</div>
+              <div id="d-sources"></div>
+            </div>
+          </div>
+          <!-- Row 3: attack types + devices -->
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-title">攻击类型分布</div>
+              <div id="d-attack-types"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">客户端设备 / 浏览器 / OS</div>
+              <div id="d-devices"></div>
+            </div>
+          </div>
+          <!-- Row 4: top IPs + top URLs -->
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-title">Top 攻击 IP</div>
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>IP</th>
+                    <th>次数</th>
+                  </tr>
+                </thead>
+                <tbody id="d-top-ips"></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="card-title">Top 目标 URL</div>
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>URL</th>
+                    <th>次数</th>
+                  </tr>
+                </thead>
+                <tbody id="d-top-urls"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Row 5: trending URLs + attacker geo -->
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-title">热门 URL</div>
+              <div id="d-trending-urls"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">攻击来源国家</div>
+              <div id="d-attacker-geo"></div>
+            </div>
+          </div>
+          <!-- Row 6: visitor geo + site info -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">访客来源国家</div>
+              <div id="d-visitor-geo"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">WAF 站点信息</div>
+              <div id="d-site-info"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LOGS TAB ── -->
+        <div class="tab-panel" id="tab-logs">
+          <!-- Search bar -->
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <input id="log-search-input" placeholder="搜索语句，例如：ip:1.2.3.4 AND type:hacker"
+                style="flex:1;min-width:260px;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:5px;padding:8px 14px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none"
+                onkeydown="if(event.key==='Enter')logSearch()">
+              <button onclick="logSearch()"
+                style="background:rgba(0,200,255,0.1);border:1px solid var(--accent);border-radius:5px;padding:8px 18px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap">
+                搜索
+              </button>
+              <button onclick="logClearSearch()"
+                style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:5px;padding:8px 14px;color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+                清除
+              </button>
+            </div>
+          </div>
+          <!-- Date nav + table -->
+          <div class="card">
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+              <div class="card-title" style="margin-bottom:0">访问日志</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="pg-btn" id="log-prev-day" onclick="logPrevDay()">◀ 前一天</button>
+                <span id="log-cur-date"
+                  style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent)">--</span>
+                <button class="pg-btn" id="log-next-day" onclick="logNextDay()">后一天 ▶</button>
+              </div>
+            </div>
+            <div id="log-search-badge"
+              style="display:none;margin-bottom:10px;font-size:11px;color:var(--yellow);font-family:'Share Tech Mono',monospace">
+            </div>
+            <div style="overflow-x:auto">
+              <table class="tbl" style="min-width:700px">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>IP</th>
+                    <th>国家/城市</th>
+                    <th>方法</th>
+                    <th>路径</th>
+                    <th>状态</th>
+                    <th>类型</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="log-tbody"></tbody>
+              </table>
+            </div>
+            <div id="log-empty" style="display:none;text-align:center;padding:32px;color:var(--dim);font-size:13px">
+              暂无日志数据</div>
+            <div class="pagination" id="log-pagination" style="margin-top:16px">
+              <button class="pg-btn" id="log-pg-first" onclick="logGoPage(1)">«</button>
+              <button class="pg-btn" id="log-pg-prev" onclick="logGoPage(logState.page-1)">‹</button>
+              <span class="pg-info" id="log-pg-info">--</span>
+              <button class="pg-btn" id="log-pg-next" onclick="logGoPage(logState.page+1)">›</button>
+              <button class="pg-btn" id="log-pg-last" onclick="logGoPage(logState.totalPages)">»</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── IP MANAGE TAB ── -->
+        <div class="tab-panel" id="tab-ipmanage">
+          <div class="grid-2">
+            <!-- Blacklist -->
+            <div class="card">
+              <div class="card-title">黑名单（封禁 IP）</div>
+              <div class="add-form">
+                <input id="bl-ip" placeholder="IP 地址" style="flex:1">
+                <input id="bl-reason" placeholder="封禁原因" style="flex:1">
+                <button onclick="addBlacklist()">+ 添加</button>
+              </div>
+              <div id="bl-list"></div>
+            </div>
+            <!-- Whitelist -->
+            <div class="card">
+              <div class="card-title">白名单（信任 IP）</div>
+              <div class="add-form">
+                <input id="wl-ip" placeholder="IP 地址" style="flex:1">
+                <input id="wl-note" placeholder="备注" style="flex:1">
+                <button onclick="addWhitelist()">+ 添加</button>
+              </div>
+              <div id="wl-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SYSTEM TAB ── -->
+        <div class="tab-panel" id="tab-system">
+          <div class="grid-3" style="margin-bottom:20px">
+            <div class="card gauge-wrap">
+              <div class="card-title" style="justify-content:center">CPU 使用率</div>
+              <div class="gauge-val" id="sys-cpu">--</div>
+              <div class="progress-bar">
+                <div class="progress-fill blue" id="sys-cpu-bar" style="width:0%"></div>
+              </div>
+              <div class="gauge-label" id="sys-cpu-cores">-- 核心</div>
+            </div>
+            <div class="card gauge-wrap">
+              <div class="card-title" style="justify-content:center">内存使用率</div>
+              <div class="gauge-val" id="sys-mem">--</div>
+              <div class="progress-bar">
+                <div class="progress-fill red" id="sys-mem-bar" style="width:0%"></div>
+              </div>
+              <div class="gauge-label" id="sys-mem-detail">-- GB / -- GB</div>
+            </div>
+            <div class="card gauge-wrap">
+              <div class="card-title" style="justify-content:center">磁盘使用率</div>
+              <div class="gauge-val" id="sys-disk">--</div>
+              <div class="progress-bar">
+                <div class="progress-fill green" id="sys-disk-bar" style="width:0%"></div>
+              </div>
+              <div class="gauge-label" id="sys-disk-detail">-- GB / -- GB</div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">系统信息</div>
+              <div id="sys-info-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">WAF 运行状态</div>
+              <div id="sys-waf-status"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /app -->
+
+  <!-- Log Detail Modal -->
+  <div class="modal-overlay" id="modal-log">
+    <div class="modal" style="width:820px">
+      <button class="modal-close" onclick="closeModal('modal-log')">✕</button>
+      <div class="modal-title">日志详情</div>
+      <div id="modal-log-detail" style="margin-bottom:20px"></div>
+      <div id="modal-replay-section" style="display:none">
+        <div
+          style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+          <span
+            style="display:inline-block;width:3px;height:10px;background:var(--accent);box-shadow:0 0 6px var(--accent)"></span>
+          用户操作回放
+        </div>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css" />
+        <div id="modal-replay-player"
+          style="border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#000;min-height:200px;display:flex;align-items:center;justify-content:center">
+          <span style="color:var(--dim);font-size:12px" id="replay-loading-tip">加载回放数据中...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+  <script>
+    // ── i18n ─────────────────────────────────────────────────────
+    const I18N = {
+      "Biubo WAF · 控制台": "Biubo WAF · Console",
+      "监控": "MONITOR",
+      "全球攻击地图": "Global Threat Map",
+      "仪表盘": "DASHBOARD",
+      "管理": "MANAGEMENT",
+      "日志管理": "Logs",
+      "黑白名单": "IP Access",
+      "系统": "SYSTEM",
+      "系统状态": "System Info",
+      "退出登录": "Logout",
+      "↻ 刷新": "↻ Refresh",
+      "退出": "Logout",
+      "加载中...": "Loading...",
+      "总请求数": "Total Requests",
+      "已拦截攻击": "Blocked Attacks",
+      "独立访客": "Unique Visitors",
+      "拦截率": "Block Rate",
+      "流量参与度": "Traffic Engagement",
+      "总会话数": "Total Sessions",
+      "跳出率": "Bounce Rate",
+      "平均会话时长": "Avg Session Dur",
+      "流量来源": "Traffic Sources",
+      "直接访问": "Direct",
+      "搜索引擎": "Search Engine",
+      "社交媒体": "Social Media",
+      "外链引用": "Referral",
+      "攻击类型分布": "Attack Type Dist",
+      "客户端设备 / 浏览器 / OS": "Device / Browser / OS",
+      "设备": "Device",
+      "浏览器": "Browser",
+      "操作系统": "OS",
+      "Top 攻击 IP": "Top Attack IPs",
+      "次数": "Count",
+      "Top 目标 URL": "Top Target URLs",
+      "热门 URL": "Trending URLs",
+      "攻击来源国家": "Attack Geo",
+      "访客来源国家": "Visitor Geo",
+      "WAF 站点信息": "WAF Site Info",
+      "域名": "Domain",
+      "状态": "Status",
+      "描述": "Description",
+      "创建时间": "Created At",
+      "暂无数据": "No Data",
+      "搜索语句，例如：ip:1.2.3.4 AND type:hacker": "Search e.g. ip:1.2.3.4 AND type:hacker",
+      "搜索": "Search",
+      "清除": "Clear",
+      "访问日志": "Access Logs",
+      "◀ 前一天": "◀ Prev Day",
+      "后一天 ▶": "Next Day ▶",
+      "时间": "Time",
+      "国家/城市": "Geo",
+      "方法": "Method",
+      "路径": "Path",
+      "类型": "Type",
+      "操作": "Action",
+      "暂无日志数据": "No log data",
+      "详情": "Detail",
+      "搜索中...": "Searching...",
+      "搜索失败": "Search failed",
+      "搜索模式": "Search Mode",
+      "加载更多历史日志...": "Loading more...",
+      "黑名单（封禁 IP）": "Blacklist (Banned IPs)",
+      "输入 IP 地址": "Enter IP",
+      "IP 地址": "IP Address",
+      "封禁原因": "Reason",
+      "+ 添加": "+ Add",
+      "白名单（信任 IP）": "Whitelist (Trusted IPs)",
+      "备注": "Note",
+      "暂无封禁 IP": "No banned IPs",
+      "暂无白名单 IP": "No whitelist IPs",
+      "解封": "Unban",
+      "移除": "Remove",
+      "手动封禁": "Manual Ban",
+      "手动添加": "Manual Add",
+      "操作失败": "Operation Failed",
+      "内容不能为空": "Cannot be empty",
+      "请输入 IP 地址": "Please enter IP",
+      "保存成功": "Saved successfully",
+      "保存失败": "Save failed",
+      "CPU 使用率": "CPU Usage",
+      "核心": "Cores",
+      "内存使用率": "Memory Usage",
+      "磁盘使用率": "Disk Usage",
+      "系统信息": "System Info",
+      "Python 版本": "Python Version",
+      "运行时长": "Uptime",
+      "当前时间": "Current Time",
+      "WAF 状态": "WAF Status",
+      "WAF 运行状态": "WAF Status",
+      "保存": "Save",
+      "威胁统计": "Threat Stats",
+      "总攻击": "Total Attacks",
+      "每分钟": "Per Min",
+      "已拦截": "Blocked",
+      "严重": "Critical",
+      "攻击类型": "Attack Types",
+      "攻击来源国": "Source Countries",
+      "威胁等级": "Threat Level",
+      "当前等级": "Current Level",
+      "LOW": "LOW",
+      "MEDIUM": "MEDIUM",
+      "HIGH": "HIGH",
+      "CRITICAL": "CRITICAL",
+      "显示时间范围": "Time Range",
+      "从": "From",
+      "至": "To",
+      "刷新地图": "Reload Map",
+      "IP 搜索回放": "IP Search & Replay",
+      "自动旋转": "Auto Rotate",
+      "速度": "Speed",
+      "暂停": "Pause",
+      "继续": "Resume",
+      "等待数据...": "Waiting for data...",
+      "未找到相关记录": "No records found",
+      "日志详情": "Log Detail",
+      "用户操作回放": "User Session Replay",
+      "加载回放数据中...": "Loading replay data...",
+      "无回放数据": "No replay data",
+      "该请求无操作回放数据": "No replay available for this request",
+      "回放数据加载失败": "Failed to load replay data",
+      "网络错误，请重试": "Network error, try again"
+    };
+
+    let curLang = localStorage.getItem('biubo_lang') || 'zh';
+    if (curLang !== 'zh' && curLang !== 'en') curLang = 'zh';
+
+    function changeLang(lang) {
+      curLang = lang;
+      localStorage.setItem('biubo_lang', lang);
+      applyLang();
+    }
+
+    function _t(str) {
+      if (curLang === 'zh') return str;
+      return I18N[str] || str;
+    }
+
+    function applyLang() {
+      const sel = document.getElementById('lang-sel');
+      if (sel) sel.value = curLang;
+      document.title = _t("Biubo WAF · 控制台");
+
+      function walk(node) {
+        if (node.nodeType === 3) {
+          const p = node.parentElement;
+          if (!p || ['SCRIPT', 'STYLE'].includes(p.tagName)) return;
+          let t = node._orig || node.nodeValue;
+          if (!t.trim()) return;
+          if (!node._orig) node._orig = t;
+          const trimmed = t.trim();
+          const translated = _t(trimmed);
+          if (translated !== trimmed) {
+            node.nodeValue = t.replace(trimmed, translated);
+          } else {
+            node.nodeValue = t;
+          }
+        } else if (node.nodeType === 1) {
+          if (['SCRIPT', 'STYLE'].includes(node.tagName)) return;
+          if (node.placeholder) {
+            if (!node._origPlaceholder) node._origPlaceholder = node.placeholder;
+            node.placeholder = _t(node._origPlaceholder);
+          }
+          if (node.tagName === 'INPUT' && (node.type === 'button' || node.type === 'submit')) {
+            if (!node._origValue) node._origValue = node.value;
+            node.value = _t(node._origValue);
+          }
+          for (let i = 0; i < node.childNodes.length; i++) {
+            walk(node.childNodes[i]);
+          }
+        }
+      }
+
+      walk(document.getElementById('app'));
+      walk(document.getElementById('modal-log'));
+
+      if (typeof refreshCurrent === 'function') setTimeout(() => refreshCurrent(), 50);
+    }
+
+    // ── State ────────────────────────────────────────────────────
+    // HTML escape helper to prevent XSS
+    function escHtml(s) {
+      if (s == null) return '-';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function getFlagEmoji(countryCode) {
+      if (!countryCode || countryCode.length !== 2) return '🌐';
+      const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt(0));
+      return String.fromCodePoint(...codePoints);
+    }
+
+    let currentHost = '';
+    let currentTab = 'globe';
+    let sysRefreshTimer = null;
+
+    // Globe state
+    let globe, gSimInterval, gPaused = false, gAutoRotate = true, gSpeed = 4;
+    let gStatTotal = 0, gStatBlocked = 0, gStatCritical = 0;
+    let gTypeCounts = {}, gCountryCounts = {}, gRateWindow = [], gAttackData = [];
+
+    const ATTACK_TYPES = ['DDoS', 'SQL Inj', 'XSS', 'BotNet', 'RansomWare', 'APT', '0-Day', 'Phishing'];
+    const TYPE_COLORS = ['#ff3a3a', '#ff7700', '#ffd700', '#ff3aff', '#aa00ff', '#00c8ff', '#00ff8c', '#ff5588'];
+    const SEV_COLORS = ['#ffd700', '#ff7700', '#ff3a3a'];
+    const SEV_LABELS = ['WARNING', 'ELEVATED', 'CRITICAL'];
+    const NODES = []; //
+
+
+    // ── Init ─────────────────────────────────────────────────────
+    window.onload = async function () {
+      applyLang();
+      setInterval(() => {
+        document.getElementById('tb-time').textContent =
+          new Date().toLocaleTimeString('zh-CN', { hour12: false });
+      }, 1000);
+      await loadHosts();
+      initGlobe();
+    };
+
+    async function loadHosts() {
+      try {
+        const r = await fetch('/biubo-cgi/api/biubo/dashboard/proxy-map');
+        if (r.status === 401) { window.location.href = '/biubo-cgi/dashboard/login'; return; }
+        const d = await r.json();
+        if (d.status === 'success') {
+          const sel = document.getElementById('host-sel');
+          const hosts = Object.keys(d.data);
+          sel.innerHTML = hosts.map(h => `<option value="${h}" ${h === location.hostname || h === location.host ? 'selected' : ''}>${h}</option>`).join('');
+          // 当前 host 优先，否则取第一个
+          currentHost = hosts.find(h => h === location.hostname || h === location.host) || hosts[0] || '';
+          sel.value = currentHost;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function onHostChange() {
+      const host = document.getElementById('host-sel').value;
+      // 直接跳转到对应 host 的 dashboard
+      window.location.href = location.protocol + '//' + host + '/biubo-cgi/dashboard';
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('nav-' + tab).classList.add('active');
+      // 离开 system tab 时停止轮询
+      if (currentTab === 'system' && tab !== 'system') stopSysRefresh();
+      currentTab = tab;
+      if (tab === 'globe') { /* globe runs itself */ }
+      else if (tab === 'dashboard') loadDashboard();
+      else if (tab === 'logs') initLogsTab();
+      else if (tab === 'ipmanage') { loadBlacklist(); loadWhitelist(); }
+      else if (tab === 'system') startSysRefresh();
+    }
+
+    function refreshCurrent() { showTab(currentTab); }
+
+    async function logout() {
+      await fetch('/biubo-cgi/dashboard/api/logout', { method: 'POST' });
+      window.location.href = '/biubo-cgi/dashboard/login';
+    }
+
+    // ── Toast ────────────────────────────────────────────────────
+    function toast(msg, type = 'ok') {
+      const el = document.createElement('div');
+      el.className = `toast-item ${type}`;
+      el.textContent = msg;
+      document.getElementById('toast').appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    // ── Modal ────────────────────────────────────────────────────
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // ── Dashboard ────────────────────────────────────────────────
+    async function loadDashboard() {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
+        if (!r.ok) return;
+        const data = await r.json();
+        renderDashboard(data);
+      } catch (e) { console.error(e); }
+    }
+
+    function renderDashboard(data) {
+      const traffic = data.analytics?.traffic || {};
+      const sec = data.analytics?.security || {};
+      const clients = data.analytics?.clients || {};
+      const site = data.site || {};
+      const trending = data.analytics?.trending_urls || {};
+
+      // ── Row 1: key stats ──
+      document.getElementById('d-total').textContent = (traffic.visitors?.total || 0).toLocaleString();
+      document.getElementById('d-blocked').textContent = (sec.blocked_requests || 0).toLocaleString();
+      document.getElementById('d-unique').textContent = (traffic.visitors?.unique?.length || 0).toLocaleString();
+      const rate = sec.block_rate ? (sec.block_rate * 100).toFixed(1) + '%' : '0%';
+      document.getElementById('d-rate').textContent = rate;
+
+      // ── Row 2: engagement ──
+      const eng = traffic.engagement || {};
+      const avgDur = eng.avg_session_duration ? eng.avg_session_duration.toFixed(1) + 's' : '-';
+      const bounce = eng.bounce_rate ? (eng.bounce_rate * 100).toFixed(1) + '%' : '-';
+      document.getElementById('d-engagement').innerHTML = `
+    <div class="detail-row"><div class="detail-key">总会话数</div><div class="detail-val">${(eng.total || 0).toLocaleString()}</div></div>
+    <div class="detail-row"><div class="detail-key">跳出率</div><div class="detail-val">${bounce}</div></div>
+    <div class="detail-row"><div class="detail-key">平均会话时长</div><div class="detail-val">${avgDur}</div></div>`;
+
+      // ── Row 2: sources ──
+      const src = traffic.sources || {};
+      const srcTotal = (src.direct || 0) + (src.search || 0) + (src.social || 0) + (src.referral || 0) || 1;
+      const srcItems = [[_t('直接访问'), 'direct', 'var(--accent)'], [_t('搜索引擎'), 'search', 'var(--green)'], [_t('社交媒体'), 'social', 'var(--yellow)'], [_t('外链引用'), 'referral', '#ff7700']];
+      document.getElementById('d-sources').innerHTML = srcItems.map(([label, key, color]) => `
+    <div class="type-bar-row">
+      <div class="type-label">${label}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${(src[key] || 0) / srcTotal * 100}%;background:${color}"></div></div>
+      <div class="type-count">${src[key] || 0}</div>
+    </div>`).join('');
+
+      // ── Row 3: attack types ──
+      const at = sec.attack_types || {};
+      const atTotal = Object.values(at).reduce((a, b) => a + b, 0) || 1;
+      document.getElementById('d-attack-types').innerHTML = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `
+    <div class="type-bar-row">
+      <div class="type-label">${escHtml(k)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${v / atTotal * 100}%;background:var(--red)"></div></div>
+      <div class="type-count">${v}</div>
+    </div>`).join('') || `<div style="color:var(--dim);font-size:12px">${_t('暂无数据')}</div>`;
+
+      // ── Row 3: devices / browsers / os ──
+      const dev = clients.devices || {};
+      const br = clients.browsers || {};
+      const os = clients.os || {};
+      const devTotal = Object.values(dev).reduce((a, b) => a + b, 0) || 1;
+      const brTotal = Object.values(br).reduce((a, b) => a + b, 0) || 1;
+      const osTotal = Object.values(os).reduce((a, b) => a + b, 0) || 1;
+      const mkBars = (obj, total, color) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `
+    <div class="type-bar-row">
+      <div class="type-label">${escHtml(k)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${v / total * 100}%;background:${color}"></div></div>
+      <div class="type-count">${v}</div>
+    </div>`).join('') || `<div style="color:var(--dim);font-size:11px;margin-bottom:6px">${_t('暂无数据')}</div>`;
+      document.getElementById('d-devices').innerHTML =
+        `<div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:6px">${_t('设备')}</div>` + mkBars(dev, devTotal, 'var(--accent)') +
+        `<div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin:10px 0 6px">${_t('浏览器')}</div>` + mkBars(br, brTotal, 'var(--green)') +
+        `<div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin:10px 0 6px">${_t('操作系统')}</div>` + mkBars(os, osTotal, 'var(--yellow)');
+
+      // ── Row 4: top IPs ──
+      const ips = sec.top_attack_ips || {};
+      const ipArr = typeof ips === 'object' && !Array.isArray(ips)
+        ? Object.entries(ips).sort((a, b) => b[1] - a[1]).slice(0, 8)
+        : (Array.isArray(ips) ? ips.slice(0, 8).map(ip => [ip, '-']) : []);
+      document.getElementById('d-top-ips').innerHTML = ipArr.map(([ip, cnt]) =>
+        `<tr><td style="font-family:'Share Tech Mono',monospace">${escHtml(ip)}</td><td>${escHtml(String(cnt))}</td></tr>`).join('') || `<tr><td colspan="2" style="color:var(--dim)">${_t('暂无数据')}</td></tr>`;
+
+      // ── Row 4: top URLs ──
+      const urls = sec.top_target_urls || {};
+      const urlArr = typeof urls === 'object' && !Array.isArray(urls)
+        ? Object.entries(urls).sort((a, b) => b[1] - a[1]).slice(0, 8)
+        : (Array.isArray(urls) ? urls.slice(0, 8).map(u => [u, '-']) : []);
+      document.getElementById('d-top-urls').innerHTML = urlArr.map(([url, cnt]) =>
+        `<tr><td style="font-family:'Share Tech Mono',monospace;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(url)}">${escHtml(url)}</td><td>${escHtml(String(cnt))}</td></tr>`).join('') || `<tr><td colspan="2" style="color:var(--dim)">${_t('暂无数据')}</td></tr>`;
+
+      // ── Row 5: trending URLs ──
+      const trendArr = typeof trending === 'object' && !Array.isArray(trending)
+        ? Object.entries(trending).sort((a, b) => b[1] - a[1]).slice(0, 8)
+        : [];
+      const trendMax = trendArr[0]?.[1] || 1;
+      document.getElementById('d-trending-urls').innerHTML = trendArr.map(([url, cnt]) => `
+    <div class="type-bar-row">
+      <div class="type-label" style="width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(url)}">${escHtml(url)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${cnt / trendMax * 100}%;background:var(--accent2)"></div></div>
+      <div class="type-count">${cnt}</div>
+    </div>`).join('') || `<div style="color:var(--dim);font-size:12px">${_t('暂无数据')}</div>`;
+
+      // ── Row 5: attacker geo ──
+      const geo = sec.geo?.attackers_by_country || {};
+      const geoArr = Object.entries(geo).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const geoMax = geoArr[0]?.[1] || 1;
+      document.getElementById('d-attacker-geo').innerHTML = geoArr.map(([c, n]) => `
+    <div class="type-bar-row">
+      <div class="type-label">${escHtml(c)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${n / geoMax * 100}%;background:var(--red)"></div></div>
+      <div class="type-count">${n}</div>
+    </div>`).join('') || `<div style="color:var(--dim);font-size:12px">${_t('暂无数据')}</div>`;
+
+      // ── Row 6: visitor geo ──
+      const vgeo = sec.geo?.visitors_by_country || {};
+      const vgeoArr = Object.entries(vgeo).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const vgeoMax = vgeoArr[0]?.[1] || 1;
+      document.getElementById('d-visitor-geo').innerHTML = vgeoArr.map(([c, n]) => `
+    <div class="type-bar-row">
+      <div class="type-label">${escHtml(c)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${n / vgeoMax * 100}%;background:var(--accent)"></div></div>
+      <div class="type-count">${n}</div>
+    </div>`).join('') || `<div style="color:var(--dim);font-size:12px">${_t('暂无数据')}</div>`;
+
+      // ── Row 6: site info ──
+      const statusColor = site.status === 'on' ? 'var(--green)' : site.status === 'off' ? 'var(--red)' : 'var(--yellow)';
+      document.getElementById('d-site-info').innerHTML = `
+    <div class="detail-row"><div class="detail-key">域名</div><div class="detail-val">${escHtml(site.domain || '-')}</div></div>
+    <div class="detail-row"><div class="detail-key">状态</div><div class="detail-val" style="color:${statusColor}">${escHtml(site.status || '-')}</div></div>
+    <div class="detail-row"><div class="detail-key">描述</div><div class="detail-val">${escHtml(site.description || '-')}</div></div>
+    <div class="detail-row"><div class="detail-key">创建时间</div><div class="detail-val">${escHtml(site.created_at || '-')}</div></div>`;
+    }
+  </script>
+  <script>
+    // ── IP Management ────────────────────────────────────────────
+    async function loadBlacklist() {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/blacklist?host=${encodeURIComponent(currentHost)}`);
+        const data = await r.json();
+        const el = document.getElementById('bl-list');
+        const entries = Object.entries(data);
+        if (entries.length === 0) {
+          el.innerHTML = `<div style="color:var(--dim);font-size:12px;padding:12px">${_t('暂无封禁 IP')}</div>`;
+          return;
+        }
+        el.innerHTML = entries.map(([ip, info]) => {
+          const reason = typeof info === 'object' ? (info.reason || '-') : info;
+          const time = typeof info === 'object' && info.banned_at ? info.banned_at : '';
+          return `<div class="ip-row">
+        <div class="ip-addr">${ip}</div>
+        <div class="ip-meta">${escHtml(_t(reason))}${time ? ' · ' + time : ''}</div>
+        <button class="ip-del" onclick="unbanIP('${ip}')">${_t('解封')}</button>
+      </div>`;
+        }).join('');
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadWhitelist() {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/whitelist?host=${encodeURIComponent(currentHost)}`);
+        const data = await r.json();
+        const el = document.getElementById('wl-list');
+        const entries = Object.entries(data);
+        if (entries.length === 0) {
+          el.innerHTML = `<div style="color:var(--dim);font-size:12px;padding:12px">${_t('暂无白名单 IP')}</div>`;
+          return;
+        }
+        el.innerHTML = entries.map(([ip, info]) => {
+          const note = typeof info === 'object' ? (info.note || '-') : (info || '-');
+          return `<div class="ip-row">
+        <div class="ip-addr">${ip}</div>
+        <div class="ip-meta">${escHtml(_t(note))}</div>
+        <button class="ip-del" onclick="removeWhitelist('${ip}')">${_t('移除')}</button>
+      </div>`;
+        }).join('');
+      } catch (e) { console.error(e); }
+    }
+
+    async function unbanIP(ip) {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/unban?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
+        const d = await r.json();
+        if (d.status === 'success') { toast(`已解封 ${ip}`); loadBlacklist(); }
+        else toast('操作失败', 'err');
+      } catch (e) { toast('操作失败', 'err'); }
+    }
+
+    async function removeWhitelist(ip) {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/remove_whitelist?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
+        const d = await r.json();
+        if (d.status === 'success') { toast(`已移除 ${ip}`); loadWhitelist(); }
+        else toast('操作失败', 'err');
+      } catch (e) { toast('操作失败', 'err'); }
+    }
+
+    async function addBlacklist() {
+      const ip = document.getElementById('bl-ip').value.trim();
+      const reason = document.getElementById('bl-reason').value.trim() || '手动封禁';
+      if (!ip) { toast('请输入 IP 地址', 'err'); return; }
+      try {
+        const r = await fetch('/biubo-cgi/dashboard/api/blacklist/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, reason, host: currentHost })
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          toast(`已封禁 ${ip}`);
+          document.getElementById('bl-ip').value = '';
+          document.getElementById('bl-reason').value = '';
+          loadBlacklist();
+        } else toast(d.msg || '操作失败', 'err');
+      } catch (e) { toast('操作失败', 'err'); }
+    }
+
+    async function addWhitelist() {
+      const ip = document.getElementById('wl-ip').value.trim();
+      const note = document.getElementById('wl-note').value.trim() || '手动添加';
+      if (!ip) { toast('请输入 IP 地址', 'err'); return; }
+      try {
+        const r = await fetch('/biubo-cgi/dashboard/api/whitelist/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, note, host: currentHost })
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          toast(`已添加白名单 ${ip}`);
+          document.getElementById('wl-ip').value = '';
+          document.getElementById('wl-note').value = '';
+          loadWhitelist();
+        } else toast(d.msg || '操作失败', 'err');
+      } catch (e) { toast('操作失败', 'err'); }
+    }
+
+    // ── System ───────────────────────────────────────────────────
+    async function loadSystem() {
+      try {
+        const r = await fetch('/biubo-cgi/info/biubo/system');
+        const d = await r.json();
+        if (d.status !== 'success') return;
+        const sys = d.data;
+
+        document.getElementById('sys-cpu').textContent = sys.cpu.percent + '%';
+        document.getElementById('sys-cpu-bar').style.width = sys.cpu.percent + '%';
+        document.getElementById('sys-cpu-cores').textContent = sys.cpu.cores + ' ' + _t('核心');
+
+        document.getElementById('sys-mem').textContent = sys.memory.percent + '%';
+        document.getElementById('sys-mem-bar').style.width = sys.memory.percent + '%';
+        document.getElementById('sys-mem-detail').textContent = `${sys.memory.used_gb} GB / ${sys.memory.total_gb} GB`;
+
+        document.getElementById('sys-disk').textContent = sys.disk.percent + '%';
+        document.getElementById('sys-disk-bar').style.width = sys.disk.percent + '%';
+        document.getElementById('sys-disk-detail').textContent = `${sys.disk.used_gb} GB / ${sys.disk.total_gb} GB`;
+
+        document.getElementById('sys-info-list').innerHTML = `
+      <div class="detail-row"><div class="detail-key">${_t('操作系统')}</div><div class="detail-val">${escHtml(sys.os)}</div></div>
+      <div class="detail-row"><div class="detail-key">${_t('Python 版本')}</div><div class="detail-val">${escHtml(sys.python_version)}</div></div>
+      <div class="detail-row"><div class="detail-key">${_t('运行时长')}</div><div class="detail-val">${escHtml(sys.uptime)}</div></div>
+      <div class="detail-row"><div class="detail-key">${_t('当前时间')}</div><div class="detail-val">${escHtml(sys.time)}</div></div>`;
+
+        // WAF status
+        const wr = await fetch(`/biubo-cgi/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
+        const wd = await wr.json();
+        const site = wd.site || {};
+        const statusColor = site.status === 'on' ? 'var(--green)' : site.status === 'off' ? 'var(--red)' : 'var(--yellow)';
+        document.getElementById('sys-waf-status').innerHTML = `
+      <div class="detail-row" style="align-items:center">
+        <div class="detail-key">${_t('WAF 状态')}</div>
+        <div class="detail-val" style="display:flex;align-items:center;gap:10px">
+          <select id="waf-status-sel" style="background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;cursor:pointer;color-scheme:dark">
+            ${['on', 'off', 'pass', 'log'].map(s => `<option value="${s}" ${site.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          <button onclick="saveWafField('status')"
+            style="background:rgba(0,200,255,0.08);border:1px solid var(--border);border-radius:3px;padding:3px 12px;color:var(--accent);font-size:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px">${_t('保存')}</button>
+        </div>
+      </div>
+      <div class="detail-row"><div class="detail-key">${_t('域名')}</div><div class="detail-val">${escHtml(site.domain || '-')}</div></div>
+      <div class="detail-row" style="align-items:center">
+        <div class="detail-key">${_t('描述')}</div>
+        <div class="detail-val" style="display:flex;align-items:center;gap:8px;flex:1">
+          <input id="waf-desc-input" value="${escHtml(site.description || '')}"
+            style="flex:1;background:rgba(0,100,180,0.1);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;min-width:0">
+          <button onclick="saveWafField('description')"
+            style="background:rgba(0,200,255,0.08);border:1px solid var(--border);border-radius:3px;padding:3px 10px;color:var(--accent);font-size:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;white-space:nowrap">${_t('保存')}</button>
+        </div>
+      </div>
+      <div class="detail-row"><div class="detail-key">${_t('创建时间')}</div><div class="detail-val">${escHtml(site.created_at || '-')}</div></div>`;
+      } catch (e) { console.error(e); }
+    }
+
+    async function saveWafField(field) {
+      let val;
+      if (field === 'status') {
+        val = document.getElementById('waf-status-sel').value;
+      } else {
+        val = document.getElementById(`waf-${field === 'domain' ? 'domain' : 'desc'}-input`).value.trim();
+        if (!val) { toast('内容不能为空', 'err'); return; }
+      }
+      try {
+        const r = await fetch('/biubo-cgi/info/biubo/setting', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [field]: val })
+        });
+        if (r.ok) { toast('保存成功'); loadSystem(); }
+        else toast('保存失败', 'err');
+      } catch (e) { toast('保存失败', 'err'); }
+    }
+
+    function startSysRefresh() {
+      stopSysRefresh();
+      loadSystem();
+      sysRefreshTimer = setInterval(loadSystem, 3000);
+    }
+
+    function stopSysRefresh() {
+      if (sysRefreshTimer) { clearInterval(sysRefreshTimer); sysRefreshTimer = null; }
+    }
+  </script>
+  <script>
+    // ── Globe ────────────────────────────────────────────────────
+
+    // 国家/城市 → 坐标映射表（作为 Fallback 缓存）
+    const GEO_MAP = {};
+
+    // 攻击类型颜色映射
+    const TYPE_COLOR_MAP = {
+      'hacker': '#ff3a3a', 'sql': '#ff7700', 'xss': '#ffd700', 'ddos': '#ff3aff',
+      'bot': '#aa00ff', 'scan': '#00c8ff', 'brute': '#00ff8c', 'upload': '#ff5588',
+      'rce': '#ff3a3a', 'lfi': '#ff7700', 'normal': '#00c8ff',
+    };
+
+    // 攻击处理 ID 缓存
+    const gSeenIds = new Set();
+    const SEEN_IDS_MAX = 2000;
+    function gMarkSeen(id) {
+      if (gSeenIds.size >= SEEN_IDS_MAX) {
+        const iter = gSeenIds.values();
+        for (let i = 0; i < 200; i++) gSeenIds.delete(iter.next().value);
+      }
+      gSeenIds.add(id);
+    }
+
+    // 服务器节点（由 API 动态初始化）
+    let gServerNode = { country: 'Unknown', city: 'Resolving...', lat: 0, lng: 0, flag: '🌐' };
+
+    // 坐标缓存，减少重复 API 请求
+    const gGeoCache = new Map();
+
+    async function gGetGeo(log) {
+      const countryCode = log.country_code || '';
+      const country = log.country || '';
+      const city = log.city || '';
+
+      // 1. 优先使用日志自带（后端丰富）的准确坐标
+      if (log.lat != null && log.lon != null) {
+        return { lat: parseFloat(log.lat), lng: parseFloat(log.lon), flag: getFlagEmoji(countryCode) };
+      }
+
+      // 2. 检查缓存中是否有该城市的坐标
+      const cacheKey = `${country}_${city}`;
+      if (gGeoCache.has(cacheKey)) {
+        return { ...gGeoCache.get(cacheKey), flag: getFlagEmoji(countryCode) };
+      }
+
+      // 3. Fallback: 通过 Nominatim API (后端代理) 获取经纬度
+      if (city || country) {
+        try {
+          const resp = await fetch(`/biubo-cgi/api/biubo/geocode?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`);
+          const res = await resp.json();
+          if (res.status === 'success' && res.data.lat) {
+            const coords = { lat: parseFloat(res.data.lat), lng: parseFloat(res.data.lon) };
+            gGeoCache.set(cacheKey, coords);
+            return { ...coords, flag: getFlagEmoji(countryCode) };
+          }
+        } catch (e) { console.warn('Geocoding fallback error:', e); }
+      }
+
+      // 4. 最终兜底：随机分散在地球上
+      return { lat: (Math.random() * 140) - 70, lng: (Math.random() * 360) - 180, flag: getFlagEmoji(countryCode) };
+    }
+
+    async function gLogToAttack(log) {
+      const geo = await gGetGeo(log);
+      const rawType = (log.attack_types && log.attack_types[0]) || log.type || 'normal';
+      const type = rawType;
+      const typeKey = rawType.toLowerCase().replace(/[^a-z]/g, '');
+      const color = TYPE_COLOR_MAP[typeKey] || '#ff3a3a';
+      const isBlocked = parseInt(log.status) >= 400 || log.type === 'hacker';
+      const sev = isBlocked ? (log.attack_types?.length > 1 ? 3 : 2) : 1;
+      const ts = log.timestamp ? log.timestamp * 1000 : (log.time ? new Date(log.time).getTime() : Date.now());
+      return {
+        id: log.request_id || Math.random().toString(36).slice(2),
+        attacker: { country: log.country || 'Unknown', city: log.city || '', lat: geo.lat, lng: geo.lng, flag: geo.flag },
+        server: { ...gServerNode },
+        type, sev,
+        timestamp: ts,
+        addedAt: Date.now(),
+        _sc: color, _dc: '#00c8ff',
+        _ttl: 120000 + sev * 10000,
+        _real: true,
+      };
+    }
+
+    async function initGlobe() {
+      // Resolve WAF server location dynamically
+      try {
+        const r = await fetch('/biubo-cgi/info/biubo/location');
+        const d = await r.json();
+        if (d.status === 'success' && d.data.lat != null) {
+          gServerNode = {
+            country: d.data.country,
+            city: d.data.city,
+            lat: d.data.lat,
+            lng: d.data.lon, // Backend returns 'lon', globe uses 'lng'
+            flag: getFlagEmoji(d.data.country_code)
+          };
+          console.log('WAF Server Location Resolved:', gServerNode);
+        }
+      } catch (e) {
+        console.warn('Failed to resolve server location, using fallback.', e);
+      }
+
+      const el = document.getElementById('globe-container');
+      globe = Globe()(el)
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+        .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+        .width(el.offsetWidth).height(el.offsetHeight)
+        .arcsData([])
+        .arcStartLat(d => d.attacker.lat).arcStartLng(d => d.attacker.lng)
+        .arcEndLat(d => d.server.lat).arcEndLng(d => d.server.lng)
+        .arcColor(d => [d._sc, d._dc])
+        .arcAltitudeAutoScale(0.35).arcStroke(d => d.sev * 0.35 + 0.25)
+        .arcDashLength(0.4).arcDashGap(0.6)
+        .arcDashAnimateTime(d => 2800 - d.sev * 400).arcsTransitionDuration(0)
+        .pointsData([]).pointLat(d => d.lat).pointLng(d => d.lng)
+        .pointColor(d => d.color).pointAltitude(0.01).pointRadius(d => d.r).pointsMerge(false)
+        .ringsData([]).ringLat(d => d.lat).ringLng(d => d.lng)
+        .ringColor(d => t => `rgba(${d.r},${d.g},${d.b},${Math.max(0, 0.8 - t)})`)
+        .ringMaxRadius(4).ringPropagationSpeed(3).ringRepeatPeriod(900);
+
+      const ctrl = globe.controls();
+      ctrl.autoRotate = true; ctrl.autoRotateSpeed = 0.35;
+      ctrl.enableDamping = true; ctrl.dampingFactor = 0.08;
+      ctrl.minDistance = 180; ctrl.maxDistance = 800;
+
+      window.addEventListener('resize', () => {
+        globe.width(el.offsetWidth).height(el.offsetHeight);
+      });
+
+      // 拉取真实数据
+      gFetchRealData();
+      // 每 15 秒轮询一次新数据
+      gSimInterval = setInterval(gFetchRealData, 15000);
+
+      setInterval(() => {
+        const cutoff = Date.now() - 60000;
+        gRateWindow = gRateWindow.filter(t => t > cutoff);
+        document.getElementById('g-rate').textContent = gRateWindow.length;
+      }, 1000);
+    }
+
+    async function gFetchRealData() {
+      if (gPaused) return;
+
+      // 读取时间范围，默认最近 30 天
+      const toInput = document.getElementById('globe-date-to');
+      const fromInput = document.getElementById('globe-date-from');
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
+
+      if (!toInput.value) toInput.value = todayStr;
+      if (!fromInput.value) {
+        const d = new Date(today); d.setDate(d.getDate() - 29);
+        fromInput.value = d.toISOString().slice(0, 10);
+      }
+
+      const fmt = d => `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+      const fromDate = new Date(fromInput.value + 'T00:00:00');
+      const toDate = new Date(toInput.value + 'T00:00:00');
+      const stmt = `type:hacker AND time:${fmt(fromDate)},${fmt(toDate)}`;
+
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        if (!r.ok) return;
+        const logs = await r.json();
+        if (!Array.isArray(logs)) return;
+        for (const log of logs) {
+          const id = log.request_id;
+          if (id && gSeenIds.has(id)) continue;
+          if (id) gMarkSeen(id);
+          gPushAttack(await gLogToAttack(log));
+        }
+      } catch (e) { console.error('Globe fetch error:', e); }
+    }
+
+    function gReload() {
+      gSeenIds.clear();
+      gClear();
+      gFetchRealData();
+    }
+
+    function gStartSim() {
+      clearInterval(gSimInterval);
+      gSimInterval = setInterval(gFetchRealData, Math.max(5000, 15000 / gSpeed));
+    }
+
+    function gPushAttack(e) {
+      gStatTotal++;
+      if (e.sev === 3) gStatCritical++;
+      // 真实数据用 sev>=2 算拦截，随机模拟保留原逻辑
+      if (e._real ? e.sev >= 2 : Math.random() > .3) gStatBlocked++;
+      const typeKey = e.type;
+      gTypeCounts[typeKey] = (gTypeCounts[typeKey] || 0) + 1;
+      gCountryCounts[e.attacker.country] = (gCountryCounts[e.attacker.country] || 0) + 1;
+      gRateWindow.push(Date.now());
+      gAttackData.push(e);
+      if (gAttackData.length > 2000) gAttackData.shift();
+      gFlushUpdate();
+      gUpdateStats();
+      gUpdateTypeBars();
+      gUpdateCountryList();
+    }
+
+    function gFlushUpdate() {
+      const now = Date.now();
+      gAttackData = gAttackData.filter(d => (now - (d.addedAt || d.timestamp)) < d._ttl);
+      const pts = [], rings = [];
+      gAttackData.forEach(d => {
+        pts.push({ lat: d.attacker.lat, lng: d.attacker.lng, color: '#ff3a3a', r: 0.25 + d.sev * 0.12 });
+        pts.push({ lat: d.server.lat, lng: d.server.lng, color: '#00c8ff', r: 0.2 + d.sev * 0.08 });
+        if (now - (d.addedAt || d.timestamp) < 2000) {
+          rings.push({ lat: d.attacker.lat, lng: d.attacker.lng, r: 255, g: 58, b: 58 });
+          rings.push({ lat: d.server.lat, lng: d.server.lng, r: 0, g: 200, b: 255 });
+        }
+      });
+      globe.arcsData([...gAttackData]).pointsData(pts).ringsData(rings);
+    }
+
+    function gUpdateStats() {
+      document.getElementById('g-total').textContent = gStatTotal.toLocaleString();
+      document.getElementById('g-blocked').textContent = gStatBlocked.toLocaleString();
+      document.getElementById('g-critical').textContent = gStatCritical.toLocaleString();
+      if (gStatTotal === 0) {
+        document.getElementById('g-threat-bar').style.width = '0%';
+        const lvlEl = document.getElementById('g-threat-level');
+        lvlEl.textContent = 'LOW';
+        lvlEl.style.color = 'var(--green)';
+        return;
+      }
+      const ratio = Math.min(1, gStatTotal / 500);
+      document.getElementById('g-threat-bar').style.width = (ratio * 100) + '%';
+      const lvl = ratio < .3 ? 'LOW' : ratio < .6 ? 'MEDIUM' : ratio < .85 ? 'HIGH' : 'CRITICAL';
+      const lvlEl = document.getElementById('g-threat-level');
+      lvlEl.textContent = _t(lvl);
+      lvlEl.style.color = ratio < .3 ? 'var(--green)' : ratio < .6 ? 'var(--yellow)' : ratio < .85 ? '#ff7700' : 'var(--red)';
+    }
+
+    function gUpdateTypeBars() {
+      const total = Object.values(gTypeCounts).reduce((a, b) => a + b, 0) || 1;
+      const sorted = Object.entries(gTypeCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      document.getElementById('g-type-bars').innerHTML = sorted.length ? sorted.map(([t, cnt], i) => {
+        const color = TYPE_COLOR_MAP[t.toLowerCase().replace(/[^a-z]/g, '')] || TYPE_COLORS[i % TYPE_COLORS.length];
+        return `<div class="type-bar-row">
+      <div class="type-label">${t.slice(0, 8)}</div>
+      <div class="type-bar-bg"><div class="type-bar-fill" style="width:${cnt / total * 100}%;background:${color}"></div></div>
+      <div class="type-count">${cnt}</div>
+    </div>`;
+      }).join('') : `<div style="color:var(--dim);font-size:11px">${_t('等待数据...')}</div>`;
+    }
+
+    function gUpdateCountryList() {
+      const sorted = Object.entries(gCountryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const max = sorted[0]?.[1] || 1;
+      document.getElementById('g-country-list').innerHTML = sorted.length ? sorted.map(([c, n], i) => {
+        const entry = GEO_MAP[c];
+        const flag = entry ? entry[3] : '🌐';
+        return `<div class="country-row">
+      <div class="country-rank">${i + 1}</div>
+      <div style="font-size:12px">${flag}</div>
+      <div class="country-name">${c}</div>
+      <div class="country-bar-bg"><div class="country-bar-fill" style="width:${n / max * 100}%"></div></div>
+      <div class="country-count">${n}</div>
+    </div>`;
+      }).join('') : `<div style="color:var(--dim);font-size:11px">${_t('等待数据...')}</div>`;
+    }
+
+    function gToggleRotate() {
+      gAutoRotate = !gAutoRotate;
+      globe.controls().autoRotate = gAutoRotate;
+      document.getElementById('g-btn-rotate').classList.toggle('active', gAutoRotate);
+    }
+    function gTogglePause() {
+      gPaused = !gPaused;
+      document.getElementById('g-btn-pause').classList.toggle('active', gPaused);
+      document.getElementById('g-btn-pause').textContent = _t(gPaused ? '继续' : '暂停');
+    }
+    function gSetSpeed(v) { gSpeed = parseInt(v); gStartSim(); }
+    function gClear() {
+      gAttackData = []; gTypeCounts = {}; gCountryCounts = {};
+      gStatTotal = 0; gStatBlocked = 0; gStatCritical = 0; gRateWindow = [];
+      globe.arcsData([]).pointsData([]).ringsData([]);
+      document.getElementById('g-country-list').innerHTML = '';
+      gUpdateStats(); gUpdateTypeBars();
+    }
+
+    // ── Globe IP Search ──────────────────────────────────────────
+    async function globeSearchIP() {
+      const ip = document.getElementById('g-ip-input').value.trim();
+      const from = document.getElementById('g-date-from').value;
+      const to = document.getElementById('g-date-to').value;
+      if (!ip) { toast('请输入 IP 地址', 'err'); return; }
+
+      const stmt = from && to
+        ? `ip:${ip} AND timestamp>=${Math.floor(new Date(from + 'T00:00:00').getTime() / 1000)} AND timestamp<=${Math.floor(new Date(to + 'T23:59:59').getTime() / 1000)}`
+        : `ip:${ip}`;
+
+      const el = document.getElementById('g-ip-results');
+      el.innerHTML = `<div style="color:var(--dim)">${_t('搜索中...')}</div>`;
+
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        const data = await r.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          el.innerHTML = `<div style="color:var(--dim)">${_t('未找到相关记录')}</div>`;
+          return;
+        }
+        el.innerHTML = data.slice(0, 20).map(log => {
+          const ts = log.timestamp ? new Date(log.timestamp * 1000).toLocaleString('zh-CN') : '-';
+          const type = log.attack_type || log.type || '-';
+          const path = (log.path || log.url || '-').slice(0, 30);
+          const country = log.country || '-';
+          // Animate on globe
+          const lat = log.lat || (Math.random() * 160 - 80);
+          const lng = log.lng || (Math.random() * 360 - 180);
+          return `<div style="padding:4px 0;border-bottom:1px solid rgba(0,200,255,0.08);cursor:pointer" onclick="globeHighlightIP(${lat},${lng},'${type}')">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent)">${ts}</div>
+        <div style="font-size:10px;color:var(--dim)">${type} · ${country} · ${path}</div>
+      </div>`;
+        }).join('');
+      } catch (e) { el.innerHTML = `<div style="color:var(--red)">${_t('搜索失败')}</div>`; }
+    }
+
+    function globeHighlightIP(lat, lng, type) {
+      // Fly to location and add a highlight ring
+      globe.pointOfView({ lat, lng, altitude: 1.5 }, 1000);
+      gLogToAttack({
+        id: Math.random().toString(36).slice(2),
+        country: 'Search Result', city: '', lat, lon: lng,
+        type: type || 'Unknown', status: 403, attack_types: [type],
+        timestamp: Math.floor(Date.now() / 1000)
+      }).then(att => {
+        att._sc = '#ffd700';
+        att._ttl = 10000;
+        gPushAttack(att);
+      });
+    }
+  </script>
+  <script>
+    // ── Fix duplicate loadDashboard (remove first stub) ──────────
+    // The actual loadDashboard is defined above; this is a no-op guard.
+
+    // ── Close modal on overlay click ────────────────────────────
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    });
+
+    // ── Keyboard shortcut: Escape closes modal ───────────────────
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    });
+  </script>
+  <script>
+    // ── Logs Tab ─────────────────────────────────────────────────
+    // 设计：所有已加载的日志合并到 logState.allLogs，按时间倒序。
+    // 翻到最后一页时自动往前加载更早一天的数据，无缝衔接。
+    const LOG_PAGE_SIZE = 10;
+
+    let logState = {
+      allLogs: [],        // 已加载的全部日志，时间倒序
+      page: 1,
+      totalPages: 1,
+      loadedDates: [],    // 已尝试过的日期列表
+      noMoreData: false,  // 是否已经没有更早的数据了
+      loading: false,
+      searchMode: false,
+      searchLogs: [],
+      rrwebPlayer: null,
+    };
+
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    function dateOffset(dateStr, days) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    async function fetchDayLogs(date) {
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/log?date=${encodeURIComponent(date)}`);
+        if (!r.ok) return [];
+        const data = await r.json();
+        const logs = Array.isArray(data) ? data : [];
+        // 给每条日志打上来源日期，供 rrweb 回放用
+        logs.forEach(l => { if (!l._date) l._date = date; });
+        return logs;
+      } catch (e) { return []; }
+    }
+
+    async function initLogsTab() {
+      logState.allLogs = [];
+      logState.loadedDates = [];
+      logState.noMoreData = false;
+      logState.loading = false;
+      logState.searchMode = false;
+      logState.searchLogs = [];
+      logState.page = 1;
+      setLogStatus('加载中...');
+      await loadMoreLogs();
+    }
+
+    // 往前加载一天的数据，跳过空日期，最多尝试 60 天
+    async function loadMoreLogs() {
+      if (logState.loading || logState.noMoreData) return;
+      logState.loading = true;
+
+      // 从下一个未尝试的日期开始（已加载过的最早日期的前一天，或今天）
+      let cur;
+      if (logState.loadedDates.length > 0) {
+        // 找 loadedDates 里最早的那天（数组末尾），再往前一天
+        cur = dateOffset(logState.loadedDates[logState.loadedDates.length - 1], -1);
+      } else {
+        cur = todayStr();
+      }
+
+      for (let tried = 0; tried < 60; tried++) {
+        // 防止重复请求
+        if (logState.loadedDates.includes(cur)) {
+          cur = dateOffset(cur, -1);
+          continue;
+        }
+
+        logState.loadedDates.push(cur);
+        const logs = await fetchDayLogs(cur);
+
+        if (logs.length > 0) {
+          logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+          logState.allLogs = logState.allLogs.concat(logs);
+          logState.loading = false;
+          renderLogTable();
+          return;
+        }
+
+        // 这天没数据，继续往前
+        const daysDiff = Math.round((new Date(todayStr()) - new Date(cur)) / 86400000);
+        if (daysDiff > 365) {
+          logState.noMoreData = true;
+          break;
+        }
+        cur = dateOffset(cur, -1);
+      }
+
+      logState.loading = false;
+      if (logState.allLogs.length === 0) {
+        setLogStatus('暂无日志数据');
+      } else {
+        logState.noMoreData = true;
+        renderLogTable();
+      }
+    }
+
+    function setLogStatus(msg) {
+      document.getElementById('log-tbody').innerHTML =
+        `<tr><td colspan="8" style="text-align:center;color:var(--dim);padding:24px">${_t(msg)}</td></tr>`;
+      document.getElementById('log-empty').style.display = 'none';
+      document.getElementById('log-pagination').style.display = 'none';
+    }
+
+    function getDisplayLogs() {
+      return logState.searchMode ? logState.searchLogs : logState.allLogs;
+    }
+
+    function renderLogTable() {
+      const logs = getDisplayLogs();
+      const totalPages = Math.max(1, Math.ceil(logs.length / LOG_PAGE_SIZE));
+      logState.totalPages = totalPages;
+      if (logState.page > totalPages) logState.page = totalPages;
+
+      const start = (logState.page - 1) * LOG_PAGE_SIZE;
+      const pageItems = logs.slice(start, start + LOG_PAGE_SIZE);
+
+      const tbody = document.getElementById('log-tbody');
+      const empty = document.getElementById('log-empty');
+      const pg = document.getElementById('log-pagination');
+
+      if (logs.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        pg.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      pg.style.display = 'flex';
+
+      tbody.innerHTML = pageItems.map(log => {
+        const ts = log.timestamp
+          ? new Date(log.timestamp * 1000).toLocaleString('zh-CN', { hour12: false })
+          : (log.time || '-');
+        const status = log.status || '-';
+        const statusColor = parseInt(status) >= 400 ? 'var(--red)' : parseInt(status) >= 300 ? 'var(--yellow)' : 'var(--green)';
+        const types = Array.isArray(log.attack_types) && log.attack_types.length
+          ? log.attack_types.map(t => `<span class="badge badge-red">${escHtml(t)}</span>`).join(' ')
+          : (log.type === 'hacker'
+            ? '<span class="badge badge-red">hacker</span>'
+            : '<span class="badge badge-green">normal</span>');
+        const method = log.method || '-';
+        const path = log.path || log.url || '-';
+        const ip = log.ip || '-';
+        const country = [log.country, log.city].filter(Boolean).join(' / ') || '-';
+        const logJson = escHtml(JSON.stringify(log));
+        const date = escHtml(log._date || '');
+        return `<tr onclick="openLogDetail(${logJson}, '${date}')" style="cursor:pointer">
+      <td style="font-family:'Share Tech Mono',monospace;white-space:nowrap;font-size:11px">${escHtml(ts)}</td>
+      <td style="font-family:'Share Tech Mono',monospace">${escHtml(ip)}</td>
+      <td style="font-size:11px">${escHtml(country)}</td>
+      <td><span class="badge badge-blue">${escHtml(method)}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Share Tech Mono',monospace;font-size:11px" title="${escHtml(path)}">${escHtml(path)}</td>
+      <td style="color:${statusColor};font-family:'Share Tech Mono',monospace">${escHtml(String(status))}</td>
+      <td>${types}</td>
+      <td><button onclick="event.stopPropagation();openLogDetail(${logJson},'${date}')"
+        style="background:rgba(0,200,255,0.08);border:1px solid var(--border);border-radius:3px;padding:3px 10px;color:var(--accent);font-size:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700">${_t('详情')}</button></td>
+    </tr>`;
+      }).join('');
+
+      // 更新分页信息
+      const loadingMore = !logState.searchMode && !logState.noMoreData;
+      const totalHint = loadingMore ? `${logs.length}+ 条` : `共 ${logs.length} 条`;
+      document.getElementById('log-pg-info').textContent = `第 ${logState.page} / ${totalPages} 页，${totalHint}`;
+      document.getElementById('log-pg-first').disabled = logState.page <= 1;
+      document.getElementById('log-pg-prev').disabled = logState.page <= 1;
+      // 最后一页且还有更多数据时，next/last 不禁用
+      const atLast = logState.page >= totalPages;
+      document.getElementById('log-pg-next').disabled = atLast && logState.noMoreData;
+      document.getElementById('log-pg-last').disabled = atLast && logState.noMoreData;
+
+      // 更新日期显示
+      if (!logState.searchMode && pageItems.length > 0) {
+        const dates = [...new Set(pageItems.map(l => l._date).filter(Boolean))];
+        document.getElementById('log-cur-date').textContent = dates.join(' ~ ');
+      }
+    }
+
+    async function logGoPage(p) {
+      if (logState.searchMode) {
+        if (p < 1 || p > logState.totalPages) return;
+        logState.page = p;
+        renderLogTable();
+        document.getElementById('content').scrollTop = 0;
+        return;
+      }
+
+      const logs = getDisplayLogs();
+      const totalPages = Math.max(1, Math.ceil(logs.length / LOG_PAGE_SIZE));
+
+      // 翻到最后一页或更后，且还有更多数据 → 先加载更多再跳
+      if (p >= totalPages && !logState.noMoreData) {
+        setLogStatus('加载更多历史日志...');
+        await loadMoreLogs();
+        // 加载完后重新计算
+        const newTotal = Math.max(1, Math.ceil(getDisplayLogs().length / LOG_PAGE_SIZE));
+        logState.page = Math.min(p, newTotal);
+        renderLogTable();
+        document.getElementById('content').scrollTop = 0;
+        return;
+      }
+
+      if (p < 1) p = 1;
+      if (p > totalPages) p = totalPages;
+      logState.page = p;
+      renderLogTable();
+      document.getElementById('content').scrollTop = 0;
+    }
+
+    async function logSearch() {
+      const stmt = document.getElementById('log-search-input').value.trim();
+      if (!stmt) { logClearSearch(); return; }
+      setLogStatus('搜索中...');
+      try {
+        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        const data = await r.json();
+        if (data.error) { toast('搜索语法错误: ' + data.error, 'err'); renderLogTable(); return; }
+        const logs = Array.isArray(data) ? data : [];
+        logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        logState.searchMode = true;
+        logState.searchLogs = logs;
+        logState.page = 1;
+        const badge = document.getElementById('log-search-badge');
+        badge.style.display = 'block';
+        badge.textContent = `搜索结果：共 ${logs.length} 条  |  语句：${stmt}`;
+        document.getElementById('log-cur-date').textContent = '搜索模式';
+        renderLogTable();
+      } catch (e) {
+        toast('搜索失败', 'err');
+        renderLogTable();
+      }
+    }
+
+    function logClearSearch() {
+      document.getElementById('log-search-input').value = '';
+      logState.searchMode = false;
+      logState.searchLogs = [];
+      logState.page = 1;
+      document.getElementById('log-search-badge').style.display = 'none';
+      renderLogTable();
+    }
+
+    // ── Log Detail & Replay ──────────────────────────────────────
+    function openLogDetail(log, date) {
+      if (typeof log === 'string') { try { log = JSON.parse(log); } catch (e) { return; } }
+      const modal = document.getElementById('modal-log');
+      modal.classList.add('open');
+
+      const displayLog = Object.assign({}, log);
+      delete displayLog.rrweb;
+      delete displayLog._date;
+      document.getElementById('modal-log-detail').innerHTML =
+        `<pre style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text);background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:5px;padding:14px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:340px;overflow-y:auto">${escHtml(JSON.stringify(displayLog, null, 2))}</pre>`;
+
+      const replaySection = document.getElementById('modal-replay-section');
+      const playerEl = document.getElementById('modal-replay-player');
+      replaySection.style.display = 'block';
+      playerEl.innerHTML = '<span style="color:var(--dim);font-size:12px">加载回放数据中...</span>';
+
+      if (logState.rrwebPlayer) {
+        try { logState.rrwebPlayer.$destroy && logState.rrwebPlayer.$destroy(); } catch (e) { }
+        logState.rrwebPlayer = null;
+      }
+
+      const rid = log.request_id;
+      const d = date || log._date;
+      if (!rid || !d) {
+        playerEl.innerHTML = '<span style="color:var(--dim);font-size:12px">无回放数据</span>';
+        return;
+      }
+
+      fetch(`/biubo-cgi/info/biubo/rrweb?date=${encodeURIComponent(d)}&id=${encodeURIComponent(rid)}`)
+        .then(r => r.json())
+        .then(events => {
+          if (!Array.isArray(events) || events.length < 2) {
+            playerEl.innerHTML = '<span style="color:var(--dim);font-size:12px">该请求无操作回放数据</span>';
+            return;
+          }
+          playerEl.innerHTML = '';
+          playerEl.style.minHeight = '400px';
+          logState.rrwebPlayer = new rrwebPlayer({
+            target: playerEl,
+            props: { events, autoPlay: false, width: playerEl.offsetWidth || 760, height: 400 }
+          });
+        })
+        .catch(() => {
+          playerEl.innerHTML = '<span style="color:var(--dim);font-size:12px">回放数据加载失败</span>';
+        });
+    }
+  </script>
+</body>
+
+</html>

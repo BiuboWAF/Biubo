@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>404 Not Found</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f6f7fb;
+    color:#333;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background:white;
+    padding:40px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    width:520px;
+    text-align:center;
+}
+
+.icon{
+    font-size:50px;
+    color:#f39c12;
+    margin-bottom:15px;
+}
+
+h1{
+    margin:10px 0;
+    font-size:26px;
+}
+
+.desc{
+    color:#666;
+    margin:15px 0 25px 0;
+}
+
+.info{
+    background:#f2f3f7;
+    border-radius:6px;
+    padding:12px;
+    font-size:14px;
+    text-align:left;
+}
+
+.info div{
+    margin:6px 0;
+}
+
+.footer{
+    margin-top:20px;
+    font-size:13px;
+    color:#888;
+}
+
+a{
+    color:#3498db;
+    text-decoration:none;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<div class="icon">⚠️</div>
+
+<h1>404 - Page Not Found</h1>
+
+<div class="desc">
+The page you are looking for does not exist or has been moved.
+</div>
+
+<div class="info">
+<div><b>Status:</b> 404 Not Found</div>
+<div><b>URL:</b> <span id="url"></span></div>
+<div><b>Time:</b> <span id="time"></span></div>
+</div>
+
+<div class="footer">
+<a href="/">Return to homepage</a>
+</div>
+
+</div>
+
+<script>
+document.getElementById("url").textContent = location.href;
+
+document.getElementById("time").textContent =
+new Date().toISOString().replace("T"," ").substring(0,19);
+</script>
+
+</body>
+</html>

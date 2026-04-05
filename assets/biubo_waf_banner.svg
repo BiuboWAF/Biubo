@@ -1,0 +1,71 @@
+<svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bodyGrad" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#b8eeff"/>
+      <stop offset="28%" stop-color="#4ab3f4"/>
+      <stop offset="62%" stop-color="#1a6fcf"/>
+      <stop offset="100%" stop-color="#0a2870"/>
+    </radialGradient>
+    <radialGradient id="glossTop" cx="42%" cy="20%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="50%" stop-color="#c0e8ff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rimLight" cx="82%" cy="80%" r="42%">
+      <stop offset="0%" stop-color="#3a9fff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#1a5fcc" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shadowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#000820" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000820" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="eyeGrad" cx="35%" cy="28%" r="62%">
+      <stop offset="0%" stop-color="#eef9ff"/>
+      <stop offset="45%" stop-color="#c2eeff" stop-opacity="0.93"/>
+      <stop offset="100%" stop-color="#7ad4ff" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a8eeff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#40aaee" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="biuboGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dd4fb"/>
+      <stop offset="55%" stop-color="#2d8fe8"/>
+      <stop offset="100%" stop-color="#1060c8"/>
+    </linearGradient>
+    <filter id="eyeBloom" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="5" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadowBlur">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <!-- Mascot shadow -->
+  <ellipse cx="80" cy="142" rx="52" ry="9" fill="url(#shadowGrad)" filter="url(#shadowBlur)" opacity="0.6" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Mascot body -->
+  <ellipse cx="80" cy="80" rx="62" ry="58" fill="url(#bodyGrad)" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="80" cy="80" rx="62" ry="58" fill="url(#rimLight)" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="80" cy="96" rx="48" ry="36" fill="#08173f" opacity="0.18" style="fill:rgb(8, 23, 63);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.18;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="65" cy="52" rx="36" ry="20" fill="url(#glossTop)" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="50" cy="45" rx="11" ry="6" fill="#ffffff" opacity="0.32" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.32;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Left eye -->
+  <ellipse cx="58" cy="80" rx="16" ry="13" fill="url(#eyeGlow)" filter="url(#eyeBloom)" opacity="0.9" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="58" cy="80" rx="10" ry="8" fill="url(#eyeGrad)" opacity="0.94" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.94;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="55" cy="77" rx="2.5" ry="2" fill="#d6f4ff" opacity="0.55" style="fill:rgb(214, 244, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.55;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="53" cy="75" rx="1.5" ry="1.2" fill="#ffffff" opacity="0.82" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.82;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Right eye -->
+  <ellipse cx="102" cy="80" rx="16" ry="13" fill="url(#eyeGlow)" filter="url(#eyeBloom)" opacity="0.9" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="102" cy="80" rx="10" ry="8" fill="url(#eyeGrad)" opacity="0.94" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.94;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="99" cy="77" rx="2.5" ry="2" fill="#d6f4ff" opacity="0.55" style="fill:rgb(214, 244, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.55;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <ellipse cx="97" cy="75" rx="1.5" ry="1.2" fill="#ffffff" opacity="0.82" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.82;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Biubo WAF text -->
+  <text font-family="'SF Pro Display','Inter','Helvetica Neue',sans-serif" font-size="72" font-weight="800" letter-spacing="-2" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;SF Pro Display&quot;, Inter, &quot;Helvetica Neue&quot;, sans-serif;font-size:72px;font-weight:800;text-anchor:start;dominant-baseline:auto">
+    <tspan x="172" y="108" fill="url(#biuboGrad)" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;SF Pro Display&quot;, Inter, &quot;Helvetica Neue&quot;, sans-serif;font-size:72px;font-weight:800;text-anchor:start;dominant-baseline:auto">Biubo</tspan><tspan dx="14" fill="#111111" style="fill:rgb(17, 17, 17);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;SF Pro Display&quot;, Inter, &quot;Helvetica Neue&quot;, sans-serif;font-size:72px;font-weight:800;text-anchor:start;dominant-baseline:auto"> WAF</tspan>
+  </text>
+</svg>
