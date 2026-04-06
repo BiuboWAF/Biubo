@@ -94,20 +94,39 @@ def get_ip_info(ip: str) -> dict:
         return {}
 
 def get_geo_info(city: str, country: str) -> dict:
-    """Fetch geographical coordinates (lat/lon) for a city and country using local geocode."""
+    """Fetch geographical coordinates (lat/lon) using local geocode with fallback."""
     try:
-        query = f"{city}, {country}"
-        results = gc.decode(query)
+        queries = []
 
-        if results and isinstance(results, list):
-            for loc in results:
-                if loc.get("location_type") == "city":
-                    return {
-                        "lat": float(loc.get("latitude", 0)),
-                        "lon": float(loc.get("longitude", 0))
-                    }
+        if city and country:
+            queries.append(f"{city}, {country}")
+        if city:
+            queries.append(city)
+        if country:
+            queries.append(country)
+
+        for query in queries:
+            results = gc.decode(query)
+
+            if results and isinstance(results, list):
+                # 优先 city
+                for loc in results:
+                    if loc.get("location_type") == "city":
+                        return {
+                            "lat": float(loc.get("latitude", 0)),
+                            "lon": float(loc.get("longitude", 0))
+                        }
+
+                # fallback: country
+                for loc in results:
+                    if loc.get("location_type") == "country":
+                        return {
+                            "lat": float(loc.get("latitude", 0)),
+                            "lon": float(loc.get("longitude", 0))
+                        }
 
         return {}
+
     except Exception as e:
         logger.warning(f"get_geo_info failed for {city}, {country}: {e}")
         return {}
