@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biubo WAF · Initialization</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-dim: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .lang-toggle select {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            outline: none;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin: 32px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            outline: none;
+            background: #fdfdfd;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+
+        .proxy-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            margin-top: 24px;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px dashed var(--border);
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: var(--error);
+            border-radius: 6px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .remove-btn:hover {
+            background: #fecaca;
+        }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 16px;
+            text-align: center;
+            padding: 10px;
+            background: #fef2f2;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="lang-toggle">
+            <select id="lang-sel" onchange="switchLang(this.value)">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+
+        <header>
+            <div class="logo">⬡</div>
+            <h1 data-t="title">Biubo WAF 初始化</h1>
+            <p class="subtitle" data-t="subtitle">欢迎使用！请完成系统配置以启动保护</p>
+        </header>
+
+        <form id="setup-form" onsubmit="return false">
+            <div class="section-title" data-t="basic_title">基础设置</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" data-t="lbl_pwd">管理员密码</label>
+                    <input type="password" id="password" placeholder="admin123" required>
+                </div>
+                <div class="form-group">
+                    <label for="waf_port" data-t="lbl_port">WAF 监听端口</label>
+                    <input type="number" id="waf_port" value="80">
+                </div>
+            </div>
+
+            <div class="section-title" data-t="llm_title">LLM 配置 (可选)</div>
+            <div class="form-group">
+                <label for="api_key" data-t="lbl_apikey">API Key</label>
+                <input type="password" id="api_key" placeholder="sk-...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="llm_url" data-t="lbl_url">Base URL</label>
+                    <input type="text" id="llm_url" placeholder="https://..." value="https://dashscope.aliyuncs.com/compatible-mode/v1">
+                </div>
+                <div class="form-group">
+                    <label for="llm_model" data-t="lbl_model">Model</label>
+                    <input type="text" id="llm_model" value="qwen-plus">
+                </div>
+            </div>
+
+            <div class="section-title" data-t="proxy_title">代理站点配置</div>
+            <div id="proxy-list">
+                <div class="proxy-item">
+                    <input type="text" placeholder="域名 (example.com)" class="proxy-domain" data-t-ph="ph_domain">
+                    <input type="text" placeholder="后端 URL (http://127.0.0.1:8080)" class="proxy-backend" data-t-ph="ph_backend">
+                    <div style="width:38px; flex-shrink:0"></div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addProxy()" data-t="btn_add">+ 添加站点</button>
+
+            <div class="error-msg" id="error"></div>
+            
+            <button class="btn btn-primary" onclick="submitSetup()" id="submit-btn" data-t="btn_submit">完成初始化</button>
+        </form>
+    </div>
+
+    <script>
+        const T = {
+            zh: {
+                title: 'Biubo WAF 初始化',
+                subtitle: '欢迎使用！请完成系统配置以启动保护',
+                basic_title: '基础设置',
+                lbl_pwd: '管理员密码',
+                lbl_port: 'WAF 监听端口',
+                llm_title: 'LLM 配置 (可选)',
+                lbl_apikey: 'API Key',
+                lbl_url: 'Base URL',
+                lbl_model: 'Model',
+                proxy_title: '代理站点配置',
+                btn_add: '+ 添加站点',
+                btn_submit: '完成初始化',
+                ph_domain: '域名 (example.com)',
+                ph_backend: '后端 URL (http://127.0.0.1:8080)',
+                err_pwd: '请设置管理员密码',
+                err_proxy: '至少配置一个有效的代理站点',
+                btn_loading: '正在保存...',
+                err_save: '保存失败，请重试',
+                err_net: '网络错误，请稍后重试'
+            },
+            en: {
+                title: 'Biubo WAF Initialization',
+                subtitle: 'Welcome! Please complete the system configuration',
+                basic_title: 'Basic Settings',
+                lbl_pwd: 'Admin Password',
+                lbl_port: 'WAF Port',
+                llm_title: 'LLM Config (Optional)',
+                lbl_apikey: 'API Key',
+                lbl_url: 'Base URL',
+                lbl_model: 'Model',
+                proxy_title: 'Proxy Sites',
+                btn_add: '+ Add Site',
+                btn_submit: 'Complete Setup',
+                ph_domain: 'Domain (example.com)',
+                ph_backend: 'Backend URL (http://127.0.0.1:8080)',
+                err_pwd: 'Admin password is required',
+                err_proxy: 'At least one valid proxy site is required',
+                btn_loading: 'Saving...',
+                err_save: 'Save failed, please try again',
+                err_net: 'Network error, please try again later'
+            }
+        };
+
+        let currentLang = 'zh';
+
+        function switchLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                el.textContent = T[lang][key];
+            });
+            document.querySelectorAll('[data-t-ph]').forEach(el => {
+                const key = el.getAttribute('data-t-ph');
+                el.placeholder = T[lang][key];
+            });
+        }
+
+        function addProxy() {
+            const list = document.getElementById('proxy-list');
+            const item = document.createElement('div');
+            item.className = 'proxy-item';
+            item.innerHTML = `
+                <input type="text" placeholder="${T[currentLang].ph_domain}" class="proxy-domain">
+                <input type="text" placeholder="${T[currentLang].ph_backend}" class="proxy-backend">
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            list.appendChild(item);
+        }
+
+        async function submitSetup() {
+            const password = document.getElementById('password').value || 'admin123';
+            const waf_port = document.getElementById('waf_port').value || '80';
+            const api_key = document.getElementById('api_key').value;
+            const llm_url = document.getElementById('llm_url').value;
+            const llm_model = document.getElementById('llm_model').value;
+            
+            const domains = document.querySelectorAll('.proxy-domain');
+            const backends = document.querySelectorAll('.proxy-backend');
+            const errorEl = document.getElementById('error');
+            const btn = document.getElementById('submit-btn');
+
+            const proxyMap = {};
+            let hasValidProxy = false;
+            for (let i = 0; i < domains.length; i++) {
+                const domain = domains[i].value.trim();
+                const backend = backends[i].value.trim();
+                if (domain && backend) {
+                    proxyMap[domain] = backend;
+                    hasValidProxy = true;
+                }
+            }
+
+            if (!hasValidProxy) {
+                errorEl.textContent = T[currentLang].err_proxy;
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = T[currentLang].btn_loading;
+
+            const payload = {
+                password,
+                waf_port,
+                api_key,
+                llm_base_url: llm_url,
+                llm_model,
+                proxy_map: proxyMap
+            };
+
+            try {
+                const resp = await fetch('/init/api/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json();
+                if (data.status === 'success') {
+                    window.location.href = data.dashboard_path + '/dashboard';
+                } else {
+                    errorEl.textContent = data.msg || T[currentLang].err_save;
+                    errorEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            } catch (err) {
+                errorEl.textContent = T[currentLang].err_net;
+                errorEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        // Initialize with user's system language if possible
+        const userLang = navigator.language.startsWith('en') ? 'en' : 'zh';
+        document.getElementById('lang-sel').value = userLang;
+        switchLang(userLang);
+    </script>
+</body>
+</html>

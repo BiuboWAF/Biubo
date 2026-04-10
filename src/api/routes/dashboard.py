@@ -21,8 +21,10 @@ def login_required(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if not session.get("dashboard_authed"):
-            if request.path.endswith(".html") or "." not in request.path.split("/")[-1]:
-                return redirect("/biubo-cgi/dashboard/login")
+            # Redirect to login for page requests, return JSON error for API requests
+            is_page = request.path.endswith(".html") or request.path.endswith("/dashboard") or request.path.endswith("/init")
+            if is_page and "/api/" not in request.path and "/info/" not in request.path:
+                return redirect(settings.DASHBOARD_PATH + "/dashboard/login")
             return jsonify({"status": "error", "msg": "Unauthorized"}), 401
         return f(*args, **kwargs)
     return decorated
@@ -51,7 +53,7 @@ def dashboard_page():
 @dashboard_bp.route("/dashboard/api/login", methods=["POST"])
 def api_login():
     data = request.get_json(silent=True) or {}
-    if data.get("password") == DASHBOARD_PASSWORD:
+    if data.get("password") == settings.DASHBOARD_PASSWORD:
         session["dashboard_authed"] = True
         return jsonify({"status": "success"})
     return jsonify({"status": "error", "msg": "Incorrect password"}), 401
@@ -61,7 +63,42 @@ def api_logout():
     session.pop("dashboard_authed", None)
     return jsonify({"status": "success"})
 
-# ── Proxy-map (hosts list) ───────────────────────────────────
+# ── Config API ───────────────────────────────────────────────
+@dashboard_bp.route("/api/biubo/config", methods=["GET"])
+@login_required
+def get_config():
+    # Return secure configuration subset
+    return jsonify({
+        "status": "success",
+        "data": {
+            "WAF_PORT": settings.WAF_PORT,
+            "DASHBOARD_PATH": settings.DASHBOARD_PATH,
+            "PROXY_MAP": settings.PROXY_MAP,
+            "API_KEY": settings.API_KEY,
+            "LLM_MODEL": settings.LLM_MODEL,
+            "LLM_BASE_URL": settings.LLM_BASE_URL
+        }
+    })
+
+@dashboard_bp.route("/api/biubo/config", methods=["POST"])
+@login_required
+def update_config():
+    data = request.get_json(silent=True) or {}
+    
+    # Update settings
+    if "WAF_PORT" in data: settings.WAF_PORT = int(data["WAF_PORT"])
+    if "DASHBOARD_PASSWORD" in data and data["DASHBOARD_PASSWORD"]: 
+        settings.DASHBOARD_PASSWORD = data["DASHBOARD_PASSWORD"]
+    if "DASHBOARD_PATH" in data: settings.DASHBOARD_PATH = data["DASHBOARD_PATH"]
+    if "PROXY_MAP" in data: settings.PROXY_MAP = data["PROXY_MAP"]
+    if "API_KEY" in data: settings.API_KEY = data["API_KEY"]
+    if "LLM_MODEL" in data: settings.LLM_MODEL = data["LLM_MODEL"]
+    if "LLM_BASE_URL" in data: settings.LLM_BASE_URL = data["LLM_BASE_URL"]
+    
+    settings.save_config()
+    return jsonify({"status": "success"})
+
+# ── Proxy-map (hosts list for UI) ────────────────────────────
 @dashboard_bp.route("/api/biubo/dashboard/proxy-map")
 @login_required
 def proxy_map():

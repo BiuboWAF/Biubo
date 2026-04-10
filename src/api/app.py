@@ -6,6 +6,7 @@ from src.config.settings import settings
 from .routes.proxy import proxy_bp
 from .routes.internal import internal_bp
 from .routes.dashboard import dashboard_bp
+from .routes.init import init_bp
 
 def create_app() -> Flask:
     """Application factory for the WAF Flask app."""
@@ -14,9 +15,10 @@ def create_app() -> Flask:
     # Configure CORS
     CORS(app, resources={r"/*": {"origins": settings.CORS_ORIGINS}})
     
-    # Register blueprints (Internal/Dashboard first to take precedence over proxy)
+    # Register blueprints (Internal/Dashboard first to take precedence)
     app.register_blueprint(internal_bp, url_prefix='/biubo-cgi')
-    app.register_blueprint(dashboard_bp, url_prefix='/biubo-cgi')
+    app.register_blueprint(dashboard_bp, url_prefix=settings.DASHBOARD_PATH)
+    app.register_blueprint(init_bp, url_prefix='/init')
     app.register_blueprint(proxy_bp)
 
 

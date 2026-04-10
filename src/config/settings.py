@@ -80,6 +80,8 @@ class Settings:
         '.mp3', '.mp4', '.wav', '.avi', '.mov', '.webm',
     }
 
+    DASHBOARD_PATH: str = os.getenv("WAF_DASHBOARD_PATH", "/biubo-cgi")
+
     # ══════════════════════════════════════════════════════════════════════════════
     # Log Management Configuration
     # ══════════════════════════════════════════════════════════════════════════════
@@ -89,6 +91,30 @@ class Settings:
 
     def __init__(self):
         self._load_config_file()
+
+    def is_initialized(self) -> bool:
+        """Checks if the WAF has been configured with at least one proxy site."""
+        return len(self.PROXY_MAP) > 0
+
+    def save_config(self):
+        """Persists the current settings to config.json."""
+        config_path = os.path.join(self.PROJECT_ROOT, "config.json")
+        config_data = {
+            "WAF_PORT": self.WAF_PORT,
+            "DASHBOARD_PASSWORD": self.DASHBOARD_PASSWORD,
+            "CORS_ORIGINS": self.CORS_ORIGINS,
+            "PROXY_MAP": self.PROXY_MAP,
+            "DASHBOARD_PATH": self.DASHBOARD_PATH,
+            "API_KEY": self.API_KEY,
+            "LLM_MODEL": self.LLM_MODEL,
+            "LLM_BASE_URL": self.LLM_BASE_URL
+        }
+        try:
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config_data, f, indent=4, ensure_ascii=False)
+            logging.info(f"Configuration saved to {config_path}")
+        except Exception as e:
+            logging.error(f"Failed to save config.json: {e}")
 
     def _load_config_file(self):
         """Loads configuration from config.json if it exists."""

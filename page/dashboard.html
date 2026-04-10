@@ -1168,6 +1168,23 @@
       color: var(--text);
       word-break: break-all
     }
+
+    /* ── Settings Form ── */
+    .st-group { margin-bottom: 24px; border-bottom: 1px solid rgba(0, 200, 255, 0.05); padding-bottom: 20px; }
+    .st-header { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .st-header i { font-style: normal; font-size: 18px; }
+    .st-row { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; }
+    .st-lbl { width: 140px; font-size: 13px; color: var(--dim); flex-shrink: 0; }
+    .st-ctrl { flex: 1; }
+    .st-ctrl input, .st-ctrl select { width: 100%; background: rgba(0, 100, 180, 0.1); border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 13px; outline: none; }
+    .st-ctrl input:focus { border-color: var(--accent); }
+    .st-hint { font-size: 11px; color: var(--dim); margin-top: 5px; opacity: 0.7; }
+    .st-proxy-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .st-btn-add { background: transparent; border: 1px dashed var(--border); color: var(--accent); width: 100%; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all .2s; }
+    .st-btn-add:hover { background: rgba(0, 200, 255, 0.05); border-color: var(--accent); }
+    .st-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+    .st-btn-save { background: var(--accent); color: #000; border: none; padding: 10px 30px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
+    .st-btn-save:hover { box-shadow: 0 0 15px var(--accent); transform: translateY(-1px); }
   </style>
 </head>
 
@@ -1223,6 +1240,13 @@
           <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
         系统状态
+      </div>
+      <div class="sb-item" onclick="showTab('settings')" id="nav-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        设置
       </div>
       <div style="flex:1"></div>
       <div class="sb-item" onclick="logout()" style="margin-bottom:8px">
@@ -1595,6 +1619,46 @@
           </div>
         </div>
 
+        <!-- ── SETTINGS TAB ── -->
+        <div class="tab-panel" id="tab-settings">
+          <div class="card" style="max-width:900px; margin:0 auto;">
+            <div class="card-title">系统全局设置</div>
+            <div class="st-group">
+              <div class="st-header">基础配置</div>
+              <div class="st-row">
+                <div class="st-lbl">管理员新密码</div>
+                <div class="st-ctrl"><input type="password" id="st-dashboard-pwd" placeholder="留空则不修改"></div>
+              </div>
+            </div>
+
+            <div class="st-group">
+              <div class="st-header">代理站点管理</div>
+              <div id="st-proxy-list"></div>
+              <button class="st-btn-add" onclick="addSettingProxy()">+ 添加新代理站点</button>
+            </div>
+
+            <div class="st-group">
+              <div class="st-header">LLM 配置</div>
+              <div class="st-row">
+                <div class="st-lbl">API Key</div>
+                <div class="st-ctrl"><input type="password" id="st-api-key" placeholder="AI 检测 API Key"></div>
+              </div>
+              <div class="st-row">
+                <div class="st-lbl">Model</div>
+                <div class="st-ctrl"><input type="text" id="st-llm-model" placeholder="qwen-plus"></div>
+              </div>
+              <div class="st-row">
+                <div class="st-lbl">Base URL</div>
+                <div class="st-ctrl"><input type="text" id="st-llm-url" placeholder="https://..."></div>
+              </div>
+            </div>
+
+            <div class="st-footer">
+              <button class="st-btn-save" onclick="saveSettings()">保存配置</button>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /content -->
     </div><!-- /main -->
   </div><!-- /app -->
@@ -1635,6 +1699,7 @@
       "黑白名单": "IP Access",
       "系统": "SYSTEM",
       "系统状态": "System Info",
+      "设置": "Settings",
       "退出登录": "Logout",
       "↻ 刷新": "↻ Refresh",
       "退出": "Logout",
@@ -1822,6 +1887,8 @@
 
     let currentHost = '';
     let currentTab = 'globe';
+    const BASE_API = '/biubo-cgi';
+    const BASE_MGMT = window.location.pathname.replace('/dashboard', '');
     let sysRefreshTimer = null;
 
     // Globe state
@@ -1849,8 +1916,8 @@
 
     async function loadHosts() {
       try {
-        const r = await fetch('/biubo-cgi/api/biubo/dashboard/proxy-map');
-        if (r.status === 401) { window.location.href = '/biubo-cgi/dashboard/login'; return; }
+        const r = await fetch(`${BASE_MGMT}/api/biubo/dashboard/proxy-map`);
+        if (r.status === 401) { window.location.href = `${BASE_MGMT}/dashboard/login`; return; }
         const d = await r.json();
         if (d.status === 'success') {
           const sel = document.getElementById('host-sel');
@@ -1866,7 +1933,7 @@
     function onHostChange() {
       const host = document.getElementById('host-sel').value;
       // 直接跳转到对应 host 的 dashboard
-      window.location.href = location.protocol + '//' + host + '/biubo-cgi/dashboard';
+      window.location.href = location.protocol + '//' + host + `${BASE_MGMT}/dashboard`;
     }
 
     function showTab(tab) {
@@ -1882,13 +1949,14 @@
       else if (tab === 'logs') initLogsTab();
       else if (tab === 'ipmanage') { loadBlacklist(); loadWhitelist(); }
       else if (tab === 'system') startSysRefresh();
+      else if (tab === 'settings') loadSettings();
     }
 
     function refreshCurrent() { showTab(currentTab); }
 
     async function logout() {
-      await fetch('/biubo-cgi/dashboard/api/logout', { method: 'POST' });
-      window.location.href = '/biubo-cgi/dashboard/login';
+      await fetch(`${BASE_MGMT}/dashboard/api/logout`, { method: 'POST' });
+      window.location.href = `${BASE_MGMT}/dashboard/login`;
     }
 
     // ── Toast ────────────────────────────────────────────────────
@@ -1906,7 +1974,7 @@
     // ── Dashboard ────────────────────────────────────────────────
     async function loadDashboard() {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
         if (!r.ok) return;
         const data = await r.json();
         renderDashboard(data);
@@ -2038,7 +2106,7 @@
     // ── IP Management ────────────────────────────────────────────
     async function loadBlacklist() {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/blacklist?host=${encodeURIComponent(currentHost)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/blacklist?host=${encodeURIComponent(currentHost)}`);
         const data = await r.json();
         const el = document.getElementById('bl-list');
         const entries = Object.entries(data);
@@ -2060,7 +2128,7 @@
 
     async function loadWhitelist() {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/whitelist?host=${encodeURIComponent(currentHost)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/whitelist?host=${encodeURIComponent(currentHost)}`);
         const data = await r.json();
         const el = document.getElementById('wl-list');
         const entries = Object.entries(data);
@@ -2081,7 +2149,7 @@
 
     async function unbanIP(ip) {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/unban?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/unban?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
         const d = await r.json();
         if (d.status === 'success') { toast(`已解封 ${ip}`); loadBlacklist(); }
         else toast('操作失败', 'err');
@@ -2090,7 +2158,7 @@
 
     async function removeWhitelist(ip) {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/remove_whitelist?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/remove_whitelist?ip=${encodeURIComponent(ip)}&host=${encodeURIComponent(currentHost)}`);
         const d = await r.json();
         if (d.status === 'success') { toast(`已移除 ${ip}`); loadWhitelist(); }
         else toast('操作失败', 'err');
@@ -2102,9 +2170,9 @@
       const reason = document.getElementById('bl-reason').value.trim() || '手动封禁';
       if (!ip) { toast('请输入 IP 地址', 'err'); return; }
       try {
-        const r = await fetch('/biubo-cgi/dashboard/api/blacklist/add', {
+        const r = await fetch(`${BASE_API}/info/biubo/ban?host=${encodeURIComponent(currentHost)}`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ip, reason, host: currentHost })
+          body: JSON.stringify({ ip, reason })
         });
         const d = await r.json();
         if (d.status === 'success') {
@@ -2121,7 +2189,7 @@
       const note = document.getElementById('wl-note').value.trim() || '手动添加';
       if (!ip) { toast('请输入 IP 地址', 'err'); return; }
       try {
-        const r = await fetch('/biubo-cgi/dashboard/api/whitelist/add', {
+        const r = await fetch(`${BASE_API}/info/biubo/add_whitelist`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ip, note, host: currentHost })
         });
@@ -2138,7 +2206,7 @@
     // ── System ───────────────────────────────────────────────────
     async function loadSystem() {
       try {
-        const r = await fetch('/biubo-cgi/info/biubo/system');
+        const r = await fetch(`${BASE_API}/info/biubo/system`);
         const d = await r.json();
         if (d.status !== 'success') return;
         const sys = d.data;
@@ -2162,7 +2230,7 @@
       <div class="detail-row"><div class="detail-key">${_t('当前时间')}</div><div class="detail-val">${escHtml(sys.time)}</div></div>`;
 
         // WAF status
-        const wr = await fetch(`/biubo-cgi/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
+        const wr = await fetch(`${BASE_API}/info/biubo/waf?host=${encodeURIComponent(currentHost)}`);
         const wd = await wr.json();
         const site = wd.site || {};
         const statusColor = site.status === 'on' ? 'var(--green)' : site.status === 'off' ? 'var(--red)' : 'var(--yellow)';
@@ -2200,7 +2268,7 @@
         if (!val) { toast('内容不能为空', 'err'); return; }
       }
       try {
-        const r = await fetch('/biubo-cgi/info/biubo/setting', {
+        const r = await fetch(`${BASE_API}/info/biubo/setting`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [field]: val })
@@ -2269,7 +2337,7 @@
       // 3. Fallback: 通过 Nominatim API (后端代理) 获取经纬度
       if (city || country) {
         try {
-          const resp = await fetch(`/biubo-cgi/api/biubo/geocode?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`);
+          const resp = await fetch(`${BASE_API}/api/biubo/geocode?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`);
           const res = await resp.json();
           if (res.status === 'success' && res.data.lat) {
             const coords = { lat: parseFloat(res.data.lat), lng: parseFloat(res.data.lon) };
@@ -2308,7 +2376,7 @@
     async function initGlobe() {
       // Resolve WAF server location dynamically
       try {
-        const r = await fetch('/biubo-cgi/info/biubo/location');
+        const r = await fetch(`${BASE_API}/info/biubo/location`);
         const d = await r.json();
         if (d.status === 'success' && d.data.lat != null) {
           gServerNode = {
@@ -2385,7 +2453,7 @@
       const stmt = `type:hacker AND time:${fmt(fromDate)},${fmt(toDate)}`;
 
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
         if (!r.ok) return;
         const logs = await r.json();
         if (!Array.isArray(logs)) return;
@@ -2523,7 +2591,7 @@
       el.innerHTML = `<div style="color:var(--dim)">${_t('搜索中...')}</div>`;
 
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
         const data = await r.json();
         if (!Array.isArray(data) || data.length === 0) {
           el.innerHTML = `<div style="color:var(--dim)">${_t('未找到相关记录')}</div>`;
@@ -2609,7 +2677,7 @@
 
     async function fetchDayLogs(date) {
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/log?date=${encodeURIComponent(date)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/log?date=${encodeURIComponent(date)}`);
         if (!r.ok) return [];
         const data = await r.json();
         const logs = Array.isArray(data) ? data : [];
@@ -2798,7 +2866,7 @@
       if (!stmt) { logClearSearch(); return; }
       setLogStatus('搜索中...');
       try {
-        const r = await fetch(`/biubo-cgi/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
+        const r = await fetch(`${BASE_API}/info/biubo/search?statement=${encodeURIComponent(stmt)}`);
         const data = await r.json();
         if (data.error) { toast('搜索语法错误: ' + data.error, 'err'); renderLogTable(); return; }
         const logs = Array.isArray(data) ? data : [];
@@ -2855,7 +2923,7 @@
         return;
       }
 
-      fetch(`/biubo-cgi/info/biubo/rrweb?date=${encodeURIComponent(d)}&id=${encodeURIComponent(rid)}`)
+      fetch(`${BASE_API}/info/biubo/rrweb?date=${encodeURIComponent(d)}&id=${encodeURIComponent(rid)}`)
         .then(r => r.json())
         .then(events => {
           if (!Array.isArray(events) || events.length < 2) {
@@ -2872,6 +2940,77 @@
         .catch(() => {
           playerEl.innerHTML = '<span style="color:var(--dim);font-size:12px">回放数据加载失败</span>';
         });
+    }
+
+    // ── Settings logic ──────────────────────────────────────────
+    async function loadSettings() {
+      try {
+        const r = await fetch(`${BASE_MGMT}/api/biubo/config`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          const cfg = d.data;
+          // Core ports/paths are now hidden from UI
+          document.getElementById('st-api-key').value = cfg.API_KEY || '';
+          document.getElementById('st-llm-model').value = cfg.LLM_MODEL || 'qwen-plus';
+          document.getElementById('st-llm-url').value = cfg.LLM_BASE_URL || '';
+          
+          const list = document.getElementById('st-proxy-list');
+          list.innerHTML = '';
+          Object.entries(cfg.PROXY_MAP || {}).forEach(([dom, back]) => {
+            addSettingProxy(dom, back);
+          });
+        }
+      } catch (e) { console.error('Failed to load settings', e); }
+    }
+
+    function addSettingProxy(domain = '', backend = '') {
+      const list = document.getElementById('st-proxy-list');
+      const row = document.createElement('div');
+      row.className = 'st-proxy-row';
+      row.innerHTML = `
+        <input type="text" placeholder="域名" class="st-proxy-domain" value="${domain}">
+        <input type="text" placeholder="后端 URL" class="st-proxy-backend" value="${backend}">
+        <button class="ip-del" style="height:32px" onclick="this.parentElement.remove()">✕</button>
+      `;
+      list.appendChild(row);
+    }
+
+    async function saveSettings() {
+      const payload = {
+        DASHBOARD_PASSWORD: document.getElementById('st-dashboard-pwd').value.trim(),
+        API_KEY: document.getElementById('st-api-key').value.trim(),
+        LLM_MODEL: document.getElementById('st-llm-model').value.trim(),
+        LLM_BASE_URL: document.getElementById('st-llm-url').value.trim(),
+        PROXY_MAP: {}
+      };
+      
+      const domains = document.querySelectorAll('.st-proxy-domain');
+      const backends = document.querySelectorAll('.st-proxy-backend');
+      for (let i = 0; i < domains.length; i++) {
+        const dom = domains[i].value.trim();
+        const back = backends[i].value.trim();
+        if (dom && back) payload.PROXY_MAP[dom] = back;
+      }
+
+      if (Object.keys(payload.PROXY_MAP).length === 0) {
+        toast('至少保留一个代理站点', 'err');
+        return;
+      }
+
+      try {
+        const r = await fetch(`${BASE_MGMT}/api/biubo/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          toast('设置保存成功', 'ok');
+          loadSettings();
+        } else {
+          toast('保存失败: ' + (d.msg || '未知原因'), 'err');
+        }
+      } catch (e) { toast('网络错误，请稍后重试', 'err'); }
     }
   </script>
 </body>

@@ -6,7 +6,7 @@ import os
 import logging
 from collections import Counter
 from urllib.parse import unquote
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, redirect
 from src.config.settings import settings
 from src.data.storage.manager import get_db
 from src.utils.http_utils import (
@@ -57,6 +57,12 @@ def _normalize_path(path: str) -> str:
 @proxy_bp.route("/", defaults={"path": ""}, methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 @proxy_bp.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 def reverse_proxy(path: str):
+    # Check for initialization
+    if not settings.is_initialized():
+        # Allow access to /init related paths for setup
+        if not path.startswith("init") and not is_static_resource(request.url):
+            return redirect("/init/")
+
     host = request.host
     target_base = settings.PROXY_MAP.get(host)
     if not target_base:
