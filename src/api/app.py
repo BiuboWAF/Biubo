@@ -11,6 +11,25 @@ from .routes.init import init_bp
 def create_app() -> Flask:
     """Application factory for the WAF Flask app."""
     app = Flask(__name__, static_folder=None)
+    # Security headers to mitigate common web attacks
+    @app.after_request
+    def set_security_headers(response):
+        # Prevent MIME type sniffing
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        # Clickjacking protection
+        response.headers['X-Frame-Options'] = 'DENY'
+        # Content Security Policy – restrict scripts, styles, and connections
+        csp = (
+            "default-src 'self'; "
+            "script-src 'self' https://fonts.googleapis.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "img-src 'self' data:; "
+            "connect-src 'self'; "
+            "font-src https://fonts.gstatic.com; "
+            "object-src 'none';"
+        )
+        response.headers['Content-Security-Policy'] = csp
+        return response
     
     # Configure CORS
     CORS(app, resources={r"/*": {"origins": settings.CORS_ORIGINS}})
