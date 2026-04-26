@@ -84,8 +84,11 @@ def _normalize_path(path: str) -> str:
 def reverse_proxy(path: str):
     # Check for initialization
     if not settings.is_initialized():
-        # Allow access to /init related paths for setup
-        if not path.startswith("init") and not is_static_resource(request.url):
+        # Allow access to /init and dashboard/internal paths for setup
+        # These paths are handled by their respective blueprints registered in app.py
+        dashboard_path = settings.DASHBOARD_PATH.lstrip('/')
+        excluded_prefixes = ('init', dashboard_path)
+        if not path.startswith(excluded_prefixes) and not is_static_resource(request.url):
             return redirect("/init/")
 
     host = request.host
