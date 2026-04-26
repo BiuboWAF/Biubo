@@ -65,7 +65,12 @@ async function testAPI(name, url, method = 'GET', body = null) {
     if (body) options.body = JSON.stringify(body);
     
     const response = await fetch(url, options);
-    const data = await response.json().catch(() => ({ status: response.status, text: await response.text() }));
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { status: response.status, text: await response.text() };
+    }
     
     testDiv.className = response.ok ? 'test-item pass' : 'test-item fail';
     testDiv.innerHTML = `<span class="status">${response.ok ? 'PASS' : 'FAIL'}</span> ${name} (${response.status})`;
