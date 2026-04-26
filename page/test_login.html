@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test Login</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+  .container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+  button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+  button:hover { background: #0056b3; }
+  #result { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Test Login Page</h2>
+  <input type="password" id="password" placeholder="Password">
+  <button id="login-btn">Login</button>
+  <div id="result">Ready to test</div>
+</div>
+<script>
+document.getElementById('login-btn').addEventListener('click', function() {
+  const pwd = document.getElementById('password').value;
+  const result = document.getElementById('result');
+  result.textContent = 'Button clicked! Password: ' + (pwd ? '****' : 'empty');
+  
+  fetch('/biubo-cgi/dashboard/api/simple-login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pwd })
+  })
+  .then(r => r.json())
+  .then(d => {
+    result.textContent = 'Response: ' + JSON.stringify(d, null, 2);
+  })
+  .catch(e => {
+    result.textContent = 'Error: ' + e.message;
+  });
+});
+
+document.getElementById('password').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('login-btn').click();
+  }
+});
+
+result.textContent = 'JavaScript loaded. Click button to test.';
+</script>
+</body>
+</html>
