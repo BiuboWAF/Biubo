@@ -21,18 +21,6 @@ class PasswordValidator:
         if not password or len(password) < PasswordValidator.MIN_LENGTH:
             return False, f"密碼長度至少須 {PasswordValidator.MIN_LENGTH} 字符"
         
-        if not re.search(r'[A-Z]', password):
-            return False, "密碼須包含至少一個大寫字母"
-        
-        if not re.search(r'[a-z]', password):
-            return False, "密碼須包含至少一個小寫字母"
-        
-        if not re.search(r'[0-9]', password):
-            return False, "密碼須包含至少一個數字"
-        
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            return False, "密碼須包含至少一個特殊字符 (!@#$%^&*等)"
-        
         return True, "密碼強度符合要求"
 
 

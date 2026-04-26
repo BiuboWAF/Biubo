@@ -1,0 +1,14 @@
+{
+    "WAF_PORT": 80,
+    "DASHBOARD_PASSWORD": "",
+    "CORS_ORIGINS": [
+        "http://ip.zplb.org.cn:7000"
+    ],
+    "PROXY_MAP": {},
+    "DASHBOARD_PATH": "/biubo-cgi",
+    "API_KEY": "",
+    "LLM_MODEL": "qwen-plus",
+    "LLM_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "UI_LANGUAGE": "zh-TW",
+    "FORCE_PASSWORD_CHANGE": false
+}

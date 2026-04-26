@@ -244,7 +244,6 @@ def check_auth():
 
 @dashboard_bp.route("/dashboard/api/change-password", methods=["POST"])
 @login_required
-@csrf_required
 def change_password():
     """Change dashboard password with validation."""
     data = request.get_json(silent=True) or {}
