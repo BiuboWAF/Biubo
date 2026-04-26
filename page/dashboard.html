@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biubo WAF · 控制台</title>
+  <title>Biubo WAF · 控制檯</title>
   <script src="https://unpkg.com/globe.gl@2.30.0/dist/globe.gl.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
@@ -1239,7 +1239,7 @@
           <line x1="8" y1="21" x2="16" y2="21" />
           <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
-        系统状态
+        系統狀態
       </div>
       <div class="sb-item" onclick="showTab('settings')" id="nav-settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1255,7 +1255,7 @@
           <polyline points="16 17 21 12 16 7" />
           <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
-        退出登录
+        退出登入
       </div>
     </nav>
 
@@ -1268,18 +1268,19 @@
           <div class="tb-time" id="tb-time">--:--:--</div>
           <div class="tb-host">
             <select id="host-sel" onchange="onHostChange()">
-              <option>加载中...</option>
+              <option>載入中...</option>
             </select>
           </div>
         </div>
         <div class="tb-right">
           <select id="lang-sel" onchange="changeLang(this.value)"
             style="background:rgba(0,100,180,0.15);border:1px solid var(--border);border-radius:4px;padding:4px 10px;color:var(--text);font-size:13px;outline:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;color-scheme:dark">
-            <option value="zh">中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="zh">简体中文</option>
             <option value="en">EN</option>
           </select>
-          <button class="tb-btn" onclick="refreshCurrent()">↻ 刷新</button>
-          <button class="tb-btn" onclick="logout()">退出</button>
+          <button class="tb-btn" onclick="refreshCurrent()">↻ 重新整理</button>
+          <button class="tb-btn" onclick="logout()">登出</button>
         </div>
       </div>
 
@@ -1293,19 +1294,19 @@
             <!-- Left panel -->
             <div id="g-panel-left">
               <div class="g-card">
-                <div class="g-card-title">威胁统计</div>
+                <div class="g-card-title">威脅統計</div>
                 <div class="stats-grid">
                   <div class="stat-item">
                     <div class="val red" id="g-total">0</div>
-                    <div class="lbl">总攻击</div>
+                    <div class="lbl">總攻擊</div>
                   </div>
                   <div class="stat-item">
                     <div class="val" id="g-rate">0</div>
-                    <div class="lbl">每分钟</div>
+                    <div class="lbl">每分鐘</div>
                   </div>
                   <div class="stat-item">
                     <div class="val green" id="g-blocked">0</div>
-                    <div class="lbl">已拦截</div>
+                    <div class="lbl">已攔截</div>
                   </div>
                   <div class="stat-item">
                     <div class="val" style="color:var(--yellow)" id="g-critical">0</div>
@@ -1609,11 +1610,11 @@
           </div>
           <div class="grid-2">
             <div class="card">
-              <div class="card-title">系统信息</div>
+              <div class="card-title">系統資訊</div>
               <div id="sys-info-list"></div>
             </div>
             <div class="card">
-              <div class="card-title">WAF 运行状态</div>
+              <div class="card-title">WAF 運行狀態</div>
               <div id="sys-waf-status"></div>
             </div>
           </div>
@@ -1622,26 +1623,26 @@
         <!-- ── SETTINGS TAB ── -->
         <div class="tab-panel" id="tab-settings">
           <div class="card" style="max-width:900px; margin:0 auto;">
-            <div class="card-title">系统全局设置</div>
+            <div class="card-title">系統全域設定</div>
             <div class="st-group">
-              <div class="st-header">基础配置</div>
+              <div class="st-header">基礎配置</div>
               <div class="st-row">
-                <div class="st-lbl">管理员新密码</div>
-                <div class="st-ctrl"><input type="password" id="st-dashboard-pwd" placeholder="留空则不修改"></div>
+                <div class="st-lbl">管理員新密碼</div>
+                <div class="st-ctrl"><input type="password" id="st-dashboard-pwd" placeholder="留空則不修改"></div>
               </div>
             </div>
 
             <div class="st-group">
-              <div class="st-header">代理站点管理</div>
+              <div class="st-header">代理網站管理</div>
               <div id="st-proxy-list"></div>
-              <button class="st-btn-add" onclick="addSettingProxy()">+ 添加新代理站点</button>
+              <button class="st-btn-add" onclick="addSettingProxy()">+ 新增代理網站</button>
             </div>
 
             <div class="st-group">
-              <div class="st-header">LLM 配置</div>
+              <div class="st-header">LLM 設定</div>
               <div class="st-row">
                 <div class="st-lbl">API Key</div>
-                <div class="st-ctrl"><input type="password" id="st-api-key" placeholder="AI 检测 API Key"></div>
+                <div class="st-ctrl"><input type="password" id="st-api-key" placeholder="AI 檢測 API Key"></div>
               </div>
               <div class="st-row">
                 <div class="st-lbl">Model</div>
@@ -1772,50 +1773,50 @@
       "保存失败": "Save failed",
       "CPU 使用率": "CPU Usage",
       "核心": "Cores",
-      "内存使用率": "Memory Usage",
-      "磁盘使用率": "Disk Usage",
-      "系统信息": "System Info",
-      "Python 版本": "Python Version",
-      "运行时长": "Uptime",
-      "当前时间": "Current Time",
-      "WAF 状态": "WAF Status",
-      "WAF 运行状态": "WAF Status",
-      "保存": "Save",
-      "威胁统计": "Threat Stats",
-      "总攻击": "Total Attacks",
-      "每分钟": "Per Min",
-      "已拦截": "Blocked",
-      "严重": "Critical",
-      "攻击类型": "Attack Types",
-      "攻击来源国": "Source Countries",
-      "威胁等级": "Threat Level",
-      "当前等级": "Current Level",
-      "LOW": "LOW",
-      "MEDIUM": "MEDIUM",
-      "HIGH": "HIGH",
-      "CRITICAL": "CRITICAL",
-      "显示时间范围": "Time Range",
-      "从": "From",
-      "至": "To",
-      "刷新地图": "Reload Map",
-      "IP 搜索回放": "IP Search & Replay",
-      "自动旋转": "Auto Rotate",
-      "速度": "Speed",
-      "暂停": "Pause",
-      "继续": "Resume",
-      "等待数据...": "Waiting for data...",
-      "未找到相关记录": "No records found",
-      "日志详情": "Log Detail",
-      "用户操作回放": "User Session Replay",
-      "加载回放数据中...": "Loading replay data...",
-      "无回放数据": "No replay data",
-      "该请求无操作回放数据": "No replay available for this request",
-      "回放数据加载失败": "Failed to load replay data",
-      "网络错误，请重试": "Network error, try again"
+      "内存使用率": "記憶體使用率",
+      "磁盘使用率": "磁碟使用率",
+      "系统信息": "系統資訊",
+      "Python 版本": "Python 版本",
+      "运行时长": "運行時長",
+      "当前时间": "當前時間",
+      "WAF 状态": "WAF 狀態",
+      "WAF 运行状态": "WAF 運行狀態",
+      "保存": "保存",
+      "威胁统计": "威脅統計",
+      "总攻击": "總攻擊",
+      "每分钟": "每分鐘",
+      "已拦截": "已攔截",
+      "严重": "嚴重",
+      "攻击类型": "攻擊類型",
+      "攻击来源国": "攻擊來源國",
+      "威胁等级": "威脅等級",
+      "当前等级": "當前等級",
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "CRITICAL": "嚴重",
+      "显示时间范围": "顯示時間範圍",
+      "从": "從",
+      "至": "至",
+      "刷新地图": "刷新地圖",
+      "IP 搜索回放": "IP 搜尋回放",
+      "自动旋转": "自動旋轉",
+      "速度": "速度",
+      "暂停": "暫停",
+      "继续": "繼續",
+      "等待数据...": "等待數據...",
+      "未找到相关记录": "未找到相關記錄",
+      "日志详情": "日誌詳情",
+      "用户操作回放": "使用者操作回放",
+      "加载回放数据中...": "載入回放數據中...",
+      "无回放数据": "無回放數據",
+      "该请求无操作回放数据": "該請求無操作回放數據",
+      "回放数据加载失败": "回放數據載入失敗",
+      "网络错误，请重试": "網路錯誤，請重試"
     };
 
-    let curLang = localStorage.getItem('biubo_lang') || 'zh';
-    if (curLang !== 'zh' && curLang !== 'en') curLang = 'zh';
+    let curLang = localStorage.getItem('biubo_lang') || 'zh-TW';
+    if (curLang !== 'zh-TW' && curLang !== 'zh' && curLang !== 'en') curLang = 'zh-TW';
 
     function changeLang(lang) {
       curLang = lang;
@@ -1831,7 +1832,7 @@
     function applyLang() {
       const sel = document.getElementById('lang-sel');
       if (sel) sel.value = curLang;
-      document.title = _t("Biubo WAF · 控制台");
+      document.title = _t("Biubo WAF · 控制檯");
 
       function walk(node) {
         if (node.nodeType === 3) {

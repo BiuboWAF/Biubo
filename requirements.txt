@@ -7,3 +7,4 @@ msgpack
 brotli
 waitress
 local-geocode
+opencc-python-reimplemented

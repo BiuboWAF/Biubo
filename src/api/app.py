@@ -6,11 +6,29 @@ from src.config.settings import settings
 from .routes.proxy import proxy_bp
 from .routes.internal import internal_bp
 from .routes.dashboard import dashboard_bp
-from .routes.init import init_bp
 
 def create_app() -> Flask:
     """Application factory for the WAF Flask app."""
     app = Flask(__name__, static_folder=None)
+    # Security headers to mitigate common web attacks
+    @app.after_request
+    def set_security_headers(response):
+        # Prevent MIME type sniffing
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        # Clickjacking protection
+        response.headers['X-Frame-Options'] = 'DENY'
+        # Content Security Policy – restrict scripts, styles, and connections
+        csp = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+            "img-src 'self' data: https://unpkg.com; "
+            "connect-src 'self' https://cdn.jsdelivr.net; "
+            "font-src https://fonts.gstatic.com; "
+            "object-src 'none';"
+        )
+        response.headers['Content-Security-Policy'] = csp
+        return response
     
     # Configure CORS
     CORS(app, resources={r"/*": {"origins": settings.CORS_ORIGINS}})
@@ -18,7 +36,6 @@ def create_app() -> Flask:
     # Register blueprints (Internal/Dashboard first to take precedence)
     app.register_blueprint(internal_bp, url_prefix='/biubo-cgi')
     app.register_blueprint(dashboard_bp, url_prefix=settings.DASHBOARD_PATH)
-    app.register_blueprint(init_bp, url_prefix='/init')
     app.register_blueprint(proxy_bp)
 
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,9 +116,9 @@
     <div class="container">
         <div class="logo">Biubo WAF</div>
         <span class="loader"></span>
-        <h1>Security verification in progress</h1>
-        <p>Our system has detected that your request may be abnormal. For the security of your account, please wait a moment while the system automatically completes the environment verification.</p>
-        <div class="status" id="status-text">Verifying browser environment...</div>
+        <h1>安全驗証進行中</h1>
+        <p>我們的系統偵測到你的請求可能不正常。為了保護你的帳戶安全，請稍候等後，系統將自動完成環境驗証。</p>
+        <div class="status" id="status-text">正在驗證流覽器環境...</div>
         
         <div class="footer">
             Request ID: {|<ri>|}
@@ -131,7 +131,7 @@
             const token = "{{TOKEN}}";
             
             setTimeout(() => {
-                statusText.innerText = "Environmental check passed, redirecting...";
+                statusText.innerText = "環境檢查已速過，重新定向...";
                 const d = new Date();
                 d.setTime(d.getTime() + (60 * 60 * 1000)); // 1小时
                 document.cookie = "bw_challenge=" + token + "; path=/; expires=" + d.toUTCString();

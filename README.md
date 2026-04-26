@@ -16,10 +16,53 @@
 
 ## ⚡ What is Biubo WAF?
 
+**Biubo WAF** 是一個智能 Web 應用程式防火牆，結合了正則表達式的高性能和 LLM 的語義理解能力。它作為您應用程式的守護者，通過雙重鏡頭監控每個請求：**正則表達式性能**和 **LLM 感知**。
+
 **Biubo WAF** is not just another rule-based filter. It is an **Intelligence-First Proxy** that bridges the gap between high-speed security and modern AI intuition. It sits as a guardian in front of your applications, watching every request through a dual lens of **Regex Performance** and **LLM Awareness**.
 
 > [!TIP]
 > **Zero-Zero Setup**: No SQL, No Redis, No complex Nginx configs. Just Python and the power of AI.
+
+---
+
+## 🧠 AI Configuration & File Locations
+
+### AI 配置文件位置
+
+AI 相關配置存儲在以下位置：
+
+| 配置項 | 文件位置 | 說明 |
+| :--- | :--- | :--- |
+| **API Key** | `config.json` | LLM API 密鑰 |
+| **LLM Model** | `config.json` | 使用的 LLM 模型名稱 |
+| **Base URL** | `config.json` | LLM API 基礎 URL |
+| **Settings** | `src/config/settings.py` | 系統設置加載器 |
+
+### AI 核心文件位置
+
+| 文件 | 路徑 | 說明 |
+| :--- | :--- | :--- |
+| **LLM Client** | `src/services/llm/client.py` | OpenAI 兼容的 LLM 客戶端 |
+| **WAF Engine** | `src/core/engine/waf_engine.py` | WAF 核心引擎（包含 AI 檢測邏輯） |
+| **Rules Engine** | `src/core/engine/rules.py` | 正則表達式規則引擎 |
+| **Validators** | `src/utils/validators.py` | 請求驗證器 |
+
+### 配置示例
+
+在 `config.json` 中配置 AI：
+
+```json
+{
+    "API_KEY": "your-api-key-here",
+    "LLM_MODEL": "qwen-plus",
+    "LLM_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+}
+```
+
+支持的 LLM 提供商：
+- 阿里雲通義千問 (qwen-plus)
+- Groq (llama-3.1-8b-instant)
+- 任何 OpenAI 兼容的 API
 
 ---
 
@@ -80,6 +123,9 @@ cd Biubo
 
 # Run the interactive setup
 python setup.py
+
+# Configure AI in config.json
+# Set API_KEY, LLM_MODEL, and LLM_BASE_URL
 
 # Start protecting
 python main.py

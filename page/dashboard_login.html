@@ -3,116 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Biubo WAF · 登录</title>
+<title>Biubo WAF Login</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#020b18;--border:rgba(0,200,255,0.18);--accent:#00c8ff;--red:#ff3a3a;--text:#c8e8ff;--glow:0 0 18px rgba(0,200,255,0.35)}
-  body{min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;color:var(--text)}
-  body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px)}
-  .box{background:rgba(2,15,35,0.92);border:1px solid var(--border);border-radius:10px;padding:40px 44px;width:360px;position:relative;backdrop-filter:blur(16px)}
-  .box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
-  .logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;justify-content:center}
-  .logo-icon{width:36px;height:36px;border:1.5px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow);font-size:18px}
-  h1{font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
-  label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,232,255,0.5);margin-bottom:8px}
-  input{width:100%;background:rgba(0,100,180,0.1);border:1px solid rgba(0,200,255,0.2);border-radius:5px;padding:11px 14px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;outline:none;transition:border-color .2s}
-  input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,200,255,0.1)}
-  .err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px;font-family:'Share Tech Mono',monospace}
-  button{margin-top:24px;width:100%;padding:12px;background:rgba(0,200,255,0.12);border:1px solid var(--accent);border-radius:5px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
-  button:hover{background:rgba(0,200,255,0.22);box-shadow:var(--glow)}
-  button:disabled{opacity:.5;cursor:not-allowed}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  .container {
+    background: #121826;
+    border: 1px solid #1e2a3d;
+    border-radius: 12px;
+    padding: 48px;
+    width: 420px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    color: #e2e8f0;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: #64748b;
+    font-size: 14px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0f1623;
+    border: 1px solid #1e2a3d;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .form-group input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  .form-group input::placeholder {
+    color: #475569;
+  }
+  .hint {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .message {
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .message.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    display: block;
+  }
+  .message.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    display: block;
+  }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover {
+    background: #2563eb;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .hidden {
+    display: none !important;
+  }
+  .adblock-warning {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 5px;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
 </style>
 </head>
 <body>
-<div class="box">
-  <div style="position:absolute;top:16px;right:16px">
-    <select id="lang-sel" onchange="changeLang(this.value)" style="background:rgba(0,100,180,0.1);border:1px solid var(--border);color:var(--dim);padding:4px 8px;border-radius:4px;outline:none;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:12px;">
-      <option value="zh">中文</option>
-      <option value="en">English</option>
-    </select>
+<div class="container">
+  <div class="header">
+    <h1>Biubo WAF</h1>
+    <p>Web Application Firewall</p>
+    <div class="adblock-warning">⚠️ 如果無法登入，請先關閉廣告攔截器</div>
   </div>
-  <div class="logo">
-    <div class="logo-icon">⬡</div>
-    <h1 id="t-h1">Biubo WAF</h1>
+
+  <!-- Login Section -->
+  <div id="login-section">
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password" autofocus>
+      <div class="hint">Default: biubo123456</div>
+    </div>
+    <div class="message" id="login-message"></div>
+    <button class="btn" id="login-btn">Login</button>
   </div>
-  <label id="t-label">管理员密码</label>
-  <input type="password" id="pwd" placeholder="输入密码" autofocus onkeydown="if(event.key==='Enter')login()">
-  <div class="err" id="err"></div>
-  <button id="btn" onclick="login()">进入控制台</button>
-</div>
-<script>
-const I18N = {
-  zh: {
-    title: 'Biubo WAF · 登录',
-    adminPwd: '管理员密码',
-    pwdPlaceholder: '输入密码',
-    btnEnter: '进入控制台',
-    errEmpty: '请输入密码',
-    errWrong: '密码错误',
-    errNet: '网络错误，请重试'
-  },
-  en: {
-    title: 'Biubo WAF · Login',
-    adminPwd: 'Admin Password',
-    pwdPlaceholder: 'Enter password',
-    btnEnter: 'Enter Console',
-    errEmpty: 'Please enter password',
-    errWrong: 'Invalid password',
-    errNet: 'Network error, please try again'
-  }
-};
-let curLang = localStorage.getItem('biubo_lang') || 'zh';
-if (curLang !== 'zh' && curLang !== 'en') curLang = 'zh';
 
-function changeLang(lang) {
-  curLang = lang;
-  localStorage.setItem('biubo_lang', lang);
-  applyLang();
-}
-
-function applyLang() {
-  document.getElementById('lang-sel').value = curLang;
-  const t = I18N[curLang];
-  document.title = t.title;
-  document.getElementById('t-label').textContent = t.adminPwd;
-  document.getElementById('pwd').placeholder = t.pwdPlaceholder;
-  document.getElementById('btn').textContent = t.btnEnter;
-  
-  const errEl = document.getElementById('err');
-  if (errEl.dataset.errId) errEl.textContent = t[errEl.dataset.errId];
-}
-applyLang();
-
-async function login() {
-  const pwd = document.getElementById('pwd').value;
-  const btn = document.getElementById('btn');
-  const err = document.getElementById('err');
-  const t = I18N[curLang];
-  if (!pwd) { err.textContent = t.errEmpty; err.dataset.errId = 'errEmpty'; return; }
-  btn.disabled = true;
-  err.textContent = '';
-  err.dataset.errId = '';
-  try {
-    const r = await fetch('/biubo-cgi/dashboard/api/login', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({password: pwd})
-    });
-    const d = await r.json();
-    if (d.status === 'success') {
-      window.location.href = '/biubo-cgi/dashboard';
-    } else {
-      err.textContent = curLang === 'zh' && d.msg ? d.msg : t.errWrong;
-      err.dataset.errId = 'errWrong';
-      btn.disabled = false;
-    }
-  } catch(e) {
-    err.textContent = t.errNet;
-    err.dataset.errId = 'errNet';
-    btn.disabled = false;
-  }
-}
-</script>
+  <!-- Password Change Section -->
+  <div id="password-section" class="hidden">
+    <div class="form-group">
+      <label for="old-password">Current Password</label>
+      <input type="password" id="old-password" placeholder="Enter current password">
+    </div>
+    <div class="form-group">
+      <label for="new-password">New Password</label>
+      <input type="password" id="new-password" placeholder="At least 8 characters">
+    </div>
+    <div class="form-group">
+      <label for="confirm-password">Confirm New Password</label>
+      <input type="password" id="confirm-password" placeholder="Confirm new password">
+    </div>
+    <div class="message" id="password-message"></div>
+    <button class="btn" id="change-password-btn">Change Password</button>
+  </div>
+  </div>
+<script src="/biubo-cgi/dashboard_login.js"></script>
 </body>
 </html>

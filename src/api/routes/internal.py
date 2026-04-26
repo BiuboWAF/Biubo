@@ -13,6 +13,7 @@ from src.utils.query_parser import parse, evaluate
 import requests
 from src.utils.http_utils import get_ip_info
 from src.api.routes.dashboard import login_required
+from src.utils.validators import validate_date_string, sanitize_filename, is_safe_path
 
 
 internal_bp = Blueprint('internal', __name__)
@@ -216,11 +217,14 @@ def waf_log():
         return jsonify({})
 
     date = request.args.get("date")
-    if not date:
-        return jsonify({})
-    if not date.replace("-", "").isdigit():
-        return jsonify({})
-    new_path = os.path.join(host_dir, "logs", f"{date}.msgpack")
+    if not date or not validate_date_string(date):
+        return jsonify({"status": "error", "msg": "Invalid date format"}), 400
+    
+    # Sanitize and validate path
+    safe_date = sanitize_filename(date)
+    new_path = os.path.join(host_dir, "logs", f"{safe_date}.msgpack")
+    if not is_safe_path(new_path, settings.DB_ROOT):
+        return jsonify({"status": "error", "msg": "Invalid path"}), 403
     if not os.path.exists(new_path):
         return jsonify({})
     db = Database(new_path, auto_backup=False)
@@ -243,11 +247,14 @@ def waf_rrweb():
         return jsonify([])
 
     date = request.args.get("date")
-    if not date:
-        return jsonify([])
-    if not date.replace("-", "").isdigit():
-        return jsonify([])
-    new_path = os.path.join(host_dir, "logs", f"{date}.msgpack")
+    if not date or not validate_date_string(date):
+        return jsonify({"status": "error", "msg": "Invalid date format"}), 400
+    
+    # Sanitize and validate path
+    safe_date = sanitize_filename(date)
+    new_path = os.path.join(host_dir, "logs", f"{safe_date}.msgpack")
+    if not is_safe_path(new_path, settings.DB_ROOT):
+        return jsonify({"status": "error", "msg": "Invalid path"}), 403
     if not os.path.exists(new_path):
         return jsonify([])
 

@@ -245,25 +245,25 @@
         </div>
 
         <header>
-            <div class="logo">⬡</div>
+            <div class="logo">⬢</div>
             <h1 data-t="title">Biubo WAF 初始化</h1>
-            <p class="subtitle" data-t="subtitle">欢迎使用！请完成系统配置以启动保护</p>
+            <p class="subtitle" data-t="subtitle">歡迎使用！請完成系統配置以啟動保護</p>
         </header>
 
         <form id="setup-form" onsubmit="return false">
-            <div class="section-title" data-t="basic_title">基础设置</div>
+            <div class="section-title" data-t="basic_title">基礎設定</div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="password" data-t="lbl_pwd">管理员密码</label>
+                    <label for="password" data-t="lbl_pwd">管理員密碼</label>
                     <input type="password" id="password" placeholder="admin123" required>
                 </div>
                 <div class="form-group">
-                    <label for="waf_port" data-t="lbl_port">WAF 监听端口</label>
+                    <label for="waf_port" data-t="lbl_port">WAF 監聽連接埠</label>
                     <input type="number" id="waf_port" value="80">
                 </div>
             </div>
 
-            <div class="section-title" data-t="llm_title">LLM 配置 (可选)</div>
+            <div class="section-title" data-t="llm_title">LLM 設定 (選填)</div>
             <div class="form-group">
                 <label for="api_key" data-t="lbl_apikey">API Key</label>
                 <input type="password" id="api_key" placeholder="sk-...">
@@ -282,12 +282,12 @@
             <div class="section-title" data-t="proxy_title">代理站点配置</div>
             <div id="proxy-list">
                 <div class="proxy-item">
-                    <input type="text" placeholder="域名 (example.com)" class="proxy-domain" data-t-ph="ph_domain">
-                    <input type="text" placeholder="后端 URL (http://127.0.0.1:8080)" class="proxy-backend" data-t-ph="ph_backend">
+                    <input type="text" placeholder="網域 (example.com)" class="proxy-domain" data-t-ph="ph_domain">
+                    <input type="text" placeholder="後端 URL (http://127.0.0.1:8080)" class="proxy-backend" data-t-ph="ph_backend">
                     <div style="width:38px; flex-shrink:0"></div>
                 </div>
             </div>
-            <button class="btn btn-secondary" onclick="addProxy()" data-t="btn_add">+ 添加站点</button>
+            <button class="btn btn-secondary" onclick="addProxy()" data-t="btn_add">+ 新增網站</button>
 
             <div class="error-msg" id="error"></div>
             
@@ -297,7 +297,28 @@
 
     <script>
         const T = {
-            zh: {
+            'zh-TW': {
+                title: 'Biubo WAF 初始化',
+                subtitle: '歡迎使用！請完成系統配置以啟動保護',
+                basic_title: '基礎設定',
+                lbl_pwd: '管理員密碼',
+                lbl_port: 'WAF 監聽連接埠',
+                llm_title: 'LLM 設定 (選填)',
+                lbl_apikey: 'API Key',
+                lbl_url: 'Base URL',
+                lbl_model: 'Model',
+                proxy_title: '代理網站設定',
+                btn_add: '+ 新增網站',
+                btn_submit: '完成初始化',
+                ph_domain: '網域 (example.com)',
+                ph_backend: '後端 URL (http://127.0.0.1:8080)',
+                err_pwd: '請設定管理員密碼',
+                err_proxy: '至少需配置一個有效的代理網站',
+                btn_loading: '正在儲存...',
+                err_save: '儲存失敗，請重試',
+                err_net: '網路錯誤，請稍後重試'
+            },
+            'zh': {
                 title: 'Biubo WAF 初始化',
                 subtitle: '欢迎使用！请完成系统配置以启动保护',
                 basic_title: '基础设置',
