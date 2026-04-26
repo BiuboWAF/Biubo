@@ -10,5 +10,6 @@
     "LLM_MODEL": "qwen-plus",
     "LLM_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "UI_LANGUAGE": "zh-TW",
-    "FORCE_PASSWORD_CHANGE": false
+    "FORCE_PASSWORD_CHANGE": false,
+    "SESSION_SECRET": "biubo-waf-session-secret-key-2024-persistent-across-restarts"
 }
