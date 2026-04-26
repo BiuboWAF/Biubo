@@ -4,9 +4,7 @@
     "CORS_ORIGINS": [
         "http://ip.zplb.org.cn:7000"
     ],
-    "PROXY_MAP": {
-        "crafty-server.eu.org": "http://localhost:8080"
-    },
+    "PROXY_MAP": {},
     "DASHBOARD_PATH": "/biubo-cgi",
     "API_KEY": "",
     "LLM_MODEL": "llama-3.1-8b-instant",

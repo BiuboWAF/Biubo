@@ -107,39 +107,6 @@ def dashboard_login_js():
         logger.error(f"Error loading dashboard_login.js: {e}")
         return "", 404
 
-@dashboard_bp.route("/test_login.html", methods=["GET"])
-def test_login_page():
-    """Serve a simple test login page for debugging"""
-    test_path = os.path.join(settings.PAGE_ROOT, "test_login.html")
-    try:
-        with open(test_path, "r", encoding="utf-8") as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Error loading test_login.html: {e}")
-        return "<h1>Test page not found</h1>", 404
-
-@dashboard_bp.route("/diagnostic.html", methods=["GET"])
-def diagnostic_page():
-    """Serve the diagnostic page for system testing"""
-    diag_path = os.path.join(settings.PAGE_ROOT, "diagnostic.html")
-    try:
-        with open(diag_path, "r", encoding="utf-8") as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Error loading diagnostic.html: {e}")
-        return "<h1>Diagnostic page not found</h1>", 404
-
-@dashboard_bp.route("/diagnostic.js", methods=["GET"])
-def diagnostic_js():
-    """Serve the diagnostic JavaScript file"""
-    js_path = os.path.join(settings.PAGE_ROOT, "diagnostic.js")
-    try:
-        with open(js_path, "r", encoding="utf-8") as f:
-            return Response(f.read(), mimetype='application/javascript')
-    except Exception as e:
-        logger.error(f"Error loading diagnostic.js: {e}")
-        return "", 404
-
 @dashboard_bp.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard_page():
