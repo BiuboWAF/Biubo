@@ -1664,6 +1664,28 @@
     </div><!-- /main -->
   </div><!-- /app -->
 
+  <!-- Password Change Modal -->
+  <div class="modal-overlay" id="modal-password">
+    <div class="modal" style="width:400px">
+      <button class="modal-close" onclick="closeModal('modal-password')">✕</button>
+      <div class="modal-title">修改密碼</div>
+      <div style="margin-bottom:15px">
+        <label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,232,255,0.5);margin-bottom:8px">舊密碼</label>
+        <input type="password" id="pwd-old" style="width:100%;background:rgba(0,100,180,0.1);border:1px solid rgba(0,200,255,0.2);border-radius:5px;padding:10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none">
+      </div>
+      <div style="margin-bottom:15px">
+        <label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,232,255,0.5);margin-bottom:8px">新密碼</label>
+        <input type="password" id="pwd-new" style="width:100%;background:rgba(0,100,180,0.1);border:1px solid rgba(0,200,255,0.2);border-radius:5px;padding:10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,232,255,0.5);margin-bottom:8px">確認密碼</label>
+        <input type="password" id="pwd-confirm" style="width:100%;background:rgba(0,100,180,0.1);border:1px solid rgba(0,200,255,0.2);border-radius:5px;padding:10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none">
+      </div>
+      <div id="pwd-error" style="color:var(--red);font-size:12px;margin-bottom:15px;min-height:18px"></div>
+      <button onclick="changePassword()" style="width:100%;padding:12px;background:rgba(0,200,255,0.12);border:1px solid var(--accent);border-radius:5px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer">提交</button>
+    </div>
+  </div>
+
   <!-- Log Detail Modal -->
   <div class="modal-overlay" id="modal-log">
     <div class="modal" style="width:820px">
@@ -3013,6 +3035,67 @@
         }
       } catch (e) { toast('网络错误，请稍后重试', 'err'); }
     }
+
+    // ── Password Change ─────────────────────────────────────────────
+    async function changePassword() {
+      const oldPwd = document.getElementById('pwd-old').value;
+      const newPwd = document.getElementById('pwd-new').value;
+      const confirmPwd = document.getElementById('pwd-confirm').value;
+      const errorEl = document.getElementById('pwd-error');
+
+      if (!oldPwd || !newPwd) {
+        errorEl.textContent = '請輸入所有必填字段';
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        errorEl.textContent = '新密碼不符';
+        return;
+      }
+      if (newPwd.length < 8) {
+        errorEl.textContent = '密碼長度至少 8 位';
+        return;
+      }
+
+      try {
+        const r = await fetch(`${BASE_MGMT}/dashboard/api/change-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            old_password: oldPwd,
+            new_password: newPwd,
+            confirm_password: confirmPwd
+          })
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          toast('密碼已成功更改', 'ok');
+          closeModal('modal-password');
+          document.getElementById('pwd-old').value = '';
+          document.getElementById('pwd-new').value = '';
+          document.getElementById('pwd-confirm').value = '';
+        } else {
+          errorEl.textContent = d.msg || '密碼更改失敗';
+        }
+      } catch (e) {
+        errorEl.textContent = '網路錯誤，請重試';
+      }
+    }
+
+    // Check if password change is forced on page load
+    async function checkForcePasswordChange() {
+      try {
+        const r = await fetch(`${BASE_MGMT}/api/biubo/config`, { method: 'GET' });
+        const d = await r.json();
+        if (d.data && d.data.FORCE_PASSWORD_CHANGE) {
+          document.getElementById('modal-password').classList.add('open');
+        }
+      } catch (e) {
+        console.error('Failed to check password change requirement:', e);
+      }
+    }
+
+    // Initialize
+    checkForcePasswordChange();
   </script>
 </body>
 
