@@ -127,6 +127,17 @@ def diagnostic_page():
         logger.error(f"Error loading diagnostic.html: {e}")
         return "<h1>Diagnostic page not found</h1>", 404
 
+@dashboard_bp.route("/diagnostic.js", methods=["GET"])
+def diagnostic_js():
+    """Serve the diagnostic JavaScript file"""
+    js_path = os.path.join(settings.PAGE_ROOT, "diagnostic.js")
+    try:
+        with open(js_path, "r", encoding="utf-8") as f:
+            return Response(f.read(), mimetype='application/javascript')
+    except Exception as e:
+        logger.error(f"Error loading diagnostic.js: {e}")
+        return "", 404
+
 @dashboard_bp.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard_page():
