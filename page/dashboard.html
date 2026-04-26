@@ -3084,9 +3084,9 @@
     // Check if password change is forced on page load
     async function checkForcePasswordChange() {
       try {
-        const r = await fetch(`${BASE_MGMT}/api/biubo/config`, { method: 'GET' });
+        const r = await fetch(`${BASE_MGMT}/dashboard/api/check-auth`, { method: 'GET' });
         const d = await r.json();
-        if (d.data && d.data.FORCE_PASSWORD_CHANGE) {
+        if (d.force_password_change) {
           document.getElementById('modal-password').classList.add('open');
         }
       } catch (e) {

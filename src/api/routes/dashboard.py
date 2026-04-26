@@ -189,6 +189,15 @@ def api_logout():
     session.pop("force_password_change", None)
     return jsonify({"status": "success"})
 
+@dashboard_bp.route("/dashboard/api/check-auth", methods=["GET"])
+@login_required
+def check_auth():
+    """Check if user is authenticated and if password change is required."""
+    return jsonify({
+        "status": "success",
+        "force_password_change": session.get("force_password_change", False)
+    })
+
 @dashboard_bp.route("/dashboard/api/change-password", methods=["POST"])
 @login_required
 @csrf_required
