@@ -109,6 +109,39 @@ def dashboard_page():
         return "<h1>儀表板頁面遺失</h1>", 404
 
 # ── Auth API ─────────────────────────────────────────────────
+# Simplified login endpoint without complex validation
+@dashboard_bp.route("/dashboard/api/simple-login", methods=["POST"])
+def api_simple_login():
+    """Simplified login endpoint for testing"""
+    data = request.get_json(silent=True) or {}
+    password = data.get("password", "")
+    
+    # Get stored password hash
+    stored_hash = DASHBOARD_PASSWORD_HASH or settings.DASHBOARD_PASSWORD_HASH
+    
+    # If no hash exists (first login), use default password
+    if not stored_hash:
+        if password == settings.DEFAULT_PASSWORD:
+            session["dashboard_authed"] = True
+            session["force_password_change"] = True
+            session['csrf_token'] = CSRFToken.generate_token()
+            return jsonify({
+                "status": "success",
+                "force_password_change": True,
+                "msg": "首次登入，請立即更改密碼"
+            })
+        else:
+            return jsonify({"status": "error", "msg": "密碼不正確"}), 401
+    
+    # Verify password hash
+    if PasswordHasher.verify_password(password, stored_hash):
+        session["dashboard_authed"] = True
+        session['csrf_token'] = CSRFToken.generate_token()
+        session.pop("force_password_change", None)
+        return jsonify({"status": "success"})
+    
+    return jsonify({"status": "error", "msg": "密碼不正確"}), 401
+
 @dashboard_bp.route("/dashboard/api/login", methods=["POST"])
 def api_login():
     # Get client IP
