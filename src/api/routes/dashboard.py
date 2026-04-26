@@ -59,7 +59,9 @@ def login_required(f):
             # Redirect to login for page requests, return JSON error for API requests
             is_page = request.path.endswith(".html") or request.path.endswith("/dashboard") or request.path.endswith("/init")
             if is_page and "/api/" not in request.path and "/info/" not in request.path:
+                logger.warning(f"Unauthorized access attempt to {request.path} from {request.remote_addr}")
                 return redirect(settings.DASHBOARD_PATH + "/dashboard/login")
+            logger.warning(f"Unauthorized API access to {request.path} from {request.remote_addr}")
             return jsonify({"status": "error", "msg": "Unauthorized"}), 401
         return f(*args, **kwargs)
     return decorated

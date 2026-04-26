@@ -10,6 +10,5 @@
     "LLM_MODEL": "qwen-plus",
     "LLM_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "UI_LANGUAGE": "zh-TW",
-    "FORCE_PASSWORD_CHANGE": false,
-    "DASHBOARD_PASSWORD_HASH": ""
+    "FORCE_PASSWORD_CHANGE": false
 }

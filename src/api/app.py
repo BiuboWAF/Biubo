@@ -20,8 +20,8 @@ def create_app() -> Flask:
         # Content Security Policy – restrict scripts, styles, and connections
         csp = (
             "default-src 'self'; "
-            "script-src 'self' https://fonts.googleapis.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
             "img-src 'self' data:; "
             "connect-src 'self'; "
             "font-src https://fonts.gstatic.com; "
