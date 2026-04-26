@@ -94,6 +94,17 @@ def login_page():
         logger.error(f"Error loading login page: {e}")
         return "<h1>登錄頁面遺失</h1>", 404
 
+@dashboard_bp.route("/dashboard_login.js", methods=["GET"])
+def dashboard_login_js():
+    """Serve the dashboard login JavaScript file"""
+    js_path = os.path.join(settings.PAGE_ROOT, "dashboard_login.js")
+    try:
+        with open(js_path, "r", encoding="utf-8") as f:
+            return Response(f.read(), mimetype='application/javascript')
+    except Exception as e:
+        logger.error(f"Error loading dashboard_login.js: {e}")
+        return "", 404
+
 @dashboard_bp.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard_page():
